@@ -18,3 +18,8 @@ export function ethToCents(value: string): number {
 export function centsToEth(cents: number): string {
   return new Decimal(cents).dividedBy(100).toFixed(2)
 }
+
+/** Total for `quantity` units, kept as a decimal string. */
+export function multiplyEth(value: string, quantity: number): string {
+  return new Decimal(value).times(quantity).toFixed(2)
+}
