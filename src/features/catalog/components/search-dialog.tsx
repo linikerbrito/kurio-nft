@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { useNavigate } from '@tanstack/react-router'
-import { Search } from 'lucide-react'
+import searchIcon from '@/assets/figma/search.svg'
+import { MaskIcon } from '@/shared/components/mask-icon'
 import { Button } from '@/shared/ui/button'
 import {
   Dialog,
@@ -36,7 +37,7 @@ export function SearchDialog({ triggerClassName }: SearchDialogProps) {
       }}
     >
       <DialogTrigger aria-label="Buscar NFTs" className={triggerClassName}>
-        <Search aria-hidden="true" size={22} />
+        <MaskIcon src={searchIcon} className="size-5" />
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>

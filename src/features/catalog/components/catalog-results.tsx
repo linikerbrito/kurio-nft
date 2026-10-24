@@ -8,7 +8,12 @@ import { useCatalogSearch } from '@/features/catalog/hooks/use-catalog-search'
 import type { NftListResponse } from '@/features/catalog/types/catalog'
 import { Button } from '@/shared/ui/button'
 
-const gridClass = 'mt-6 grid grid-cols-2 gap-x-[2.125rem] gap-y-14 lg:grid-cols-3'
+/**
+ * Phones: two staggered columns (the right one sits 32px lower, as in the mobile design).
+ * Tablet and desktop: the regular three-column grid.
+ */
+const gridClass =
+  'mt-4 grid grid-cols-2 gap-x-4 gap-y-6 pb-8 *:even:translate-y-8 md:mt-8 md:grid-cols-3 md:gap-x-6 md:gap-y-14 md:pb-0 md:*:even:translate-y-0 lg:gap-x-[2.125rem] lg:gap-y-[4.5rem]'
 
 interface CatalogResultsProps {
   query: UseQueryResult<NftListResponse>

@@ -1,16 +1,18 @@
 import { Link, useRouterState } from '@tanstack/react-router'
-import { LogIn, ShoppingCart } from 'lucide-react'
+import cartIcon from '@/assets/figma/cart.svg'
+import logoutIcon from '@/assets/figma/logout.svg'
 import { SearchDialog } from '@/features/catalog/components/search-dialog'
 import { useCartCount } from '@/features/cart/hooks/use-cart-count'
 import { isMarketPath } from '@/shared/layout/navigation-state'
+import { MaskIcon } from '@/shared/components/mask-icon'
 import { UnavailableAction } from '@/shared/components/unavailable-action'
 
 const linkClass =
-  'relative inline-flex h-full items-center px-5 text-base text-fg transition-colors hover:text-primary'
+  'relative inline-flex h-full items-start px-5 text-base text-fg transition-colors hover:text-fg-accent'
 const activeLinkClass =
-  'font-semibold text-primary after:absolute after:right-5 after:-bottom-px after:left-5 after:h-0.5 after:bg-primary'
+  'font-bold text-fg-accent after:absolute after:right-5 after:-bottom-px after:left-5 after:h-0.5 after:bg-primary'
 const actionClass =
-  'relative inline-flex size-10 items-center justify-center rounded-sm text-fg transition-colors hover:bg-surface hover:text-primary'
+  'relative inline-flex size-10 items-center justify-center rounded-sm text-fg transition-colors hover:bg-surface hover:text-fg-accent'
 
 export function Header() {
   const pathname = useRouterState({ select: (state) => state.location.pathname })
@@ -20,10 +22,10 @@ export function Header() {
 
   return (
     <header className="page-container hidden md:block">
-      <div className="flex h-17 items-center justify-between border-b border-border-default">
+      <div className="flex h-[4.3125rem] items-start justify-between border-b border-border-default pt-6">
         <Link
           to="/"
-          className="text-sm font-bold tracking-[0.08em] text-fg"
+          className="mt-2 text-sm font-bold tracking-[0.1em] text-fg"
           aria-label="Kurio, início"
         >
           KURIO
@@ -53,18 +55,18 @@ export function Header() {
           </UnavailableAction>
         </nav>
 
-        <div className="flex items-center gap-3">
+        <div className="-mt-0.5 flex h-10 items-center gap-2.5">
           <SearchDialog triggerClassName={actionClass} />
           <Link
             to="/carrinho"
             aria-label={`Carrinho, ${cartCount} ${cartCount === 1 ? 'item' : 'itens'}`}
             className={actionClass}
           >
-            <ShoppingCart aria-hidden="true" size={22} />
+            <MaskIcon src={cartIcon} className="size-6" />
             {cartCount > 0 && (
               <span
                 aria-hidden="true"
-                className="absolute top-0.5 right-0 flex size-4 items-center justify-center rounded-full bg-primary text-[0.6rem] font-bold text-primary-fg"
+                className="absolute top-2 right-px flex size-4 items-center justify-center rounded-full bg-primary text-[0.625rem] font-medium text-primary-fg"
               >
                 {cartCount}
               </span>
@@ -72,9 +74,11 @@ export function Header() {
           </Link>
           <Link
             to="/login"
-            className="ml-3 inline-flex h-[2.125rem] items-center gap-1.5 rounded-sm bg-primary px-2.5 text-base font-medium text-primary-fg transition-colors hover:bg-primary/90"
+            className="ml-2.5 inline-flex h-[2.1875rem] w-[6.25rem] items-center justify-center gap-1 rounded-[6px] bg-primary text-base font-medium text-primary-fg transition-colors hover:bg-primary/90"
           >
-            <LogIn aria-hidden="true" size={18} />
+            <span className="flex size-5 items-center justify-center">
+              <MaskIcon src={logoutIcon} className="h-[1.0573rem] w-[1.1111rem]" />
+            </span>
             Entrar
           </Link>
         </div>

@@ -24,7 +24,15 @@ export const networkLabels: Record<Network, string> = {
   solana: 'Solana',
 }
 
-const DEFAULT_IMAGE = '/nfts/default.jpg'
+/** The four artworks of the prototype, exported from the design file. */
+const artworks = {
+  emerald: '/nfts/ape-emerald.jpg',
+  sage: '/nfts/ape-sage.jpg',
+  onyx: '/nfts/ape-onyx.jpg',
+  golden: '/nfts/ape-golden.jpg',
+} as const
+type Artwork = keyof typeof artworks
+const artworkCycle: Artwork[] = ['emerald', 'sage', 'onyx', 'golden']
 const NEWEST_LISTING = Date.UTC(2026, 9, 20, 15, 0, 0)
 const DAY = 86_400_000
 
@@ -37,12 +45,14 @@ interface Seed {
   collection: string
   rarity?: Rarity
   attributes: string[]
+  artwork: Artwork
 }
 
 /** First page of "Listados recentemente", matching the desktop home frame. */
 const designSeeds: Seed[] = [
   {
     name: 'Emerald Ape #042',
+    artwork: 'emerald',
     price: '1.19',
     category: 'digital-art',
     network: 'ethereum',
@@ -52,6 +62,7 @@ const designSeeds: Seed[] = [
   },
   {
     name: 'Sage Nomad #009',
+    artwork: 'sage',
     price: '1.69',
     category: 'digital-art',
     network: 'ethereum',
@@ -60,6 +71,7 @@ const designSeeds: Seed[] = [
   },
   {
     name: 'Neon Vessel #552',
+    artwork: 'onyx',
     price: '1.99',
     previousPrice: '2.29',
     category: 'collectibles',
@@ -70,6 +82,7 @@ const designSeeds: Seed[] = [
   },
   {
     name: 'Cosmic Bloom #118',
+    artwork: 'sage',
     price: '1.29',
     category: 'generative',
     network: 'ethereum',
@@ -78,6 +91,7 @@ const designSeeds: Seed[] = [
   },
   {
     name: 'Violet Nomad #314',
+    artwork: 'sage',
     price: '1.39',
     category: 'digital-art',
     network: 'solana',
@@ -86,6 +100,7 @@ const designSeeds: Seed[] = [
   },
   {
     name: 'Ivory Baron #088',
+    artwork: 'onyx',
     price: '1.79',
     category: '3d-art',
     network: 'polygon',
@@ -95,6 +110,7 @@ const designSeeds: Seed[] = [
   },
   {
     name: 'Golden Beat #207',
+    artwork: 'golden',
     price: '0.99',
     category: 'music',
     network: 'ethereum',
@@ -103,6 +119,7 @@ const designSeeds: Seed[] = [
   },
   {
     name: 'Amber Echo #233',
+    artwork: 'golden',
     price: '0.79',
     category: 'music',
     network: 'solana',
@@ -111,6 +128,7 @@ const designSeeds: Seed[] = [
   },
   {
     name: 'Golden Signal #160',
+    artwork: 'golden',
     price: '0.39',
     category: 'music',
     network: 'polygon',
@@ -260,6 +278,7 @@ const generatedSeeds: Seed[] = generatedPrices.map((price, index) => {
       pick(attributePool, index + 3),
       ...(rare ? ['Raro'] : []),
     ],
+    artwork: pick(artworkCycle, index),
   }
 })
 
@@ -290,7 +309,10 @@ function buildNft(seed: Seed, index: number): MockNft {
   const tokenId = `#${seed.name.split('#')[1]?.padStart(4, '0') ?? String(index)}`
   const networkLabel = networkLabels[seed.network]
   const editions = buildEditions(id, index)
-  const image = { src: DEFAULT_IMAGE, alt: `${seed.name}, NFT da coleção ${seed.collection}` }
+  const image = {
+    src: artworks[seed.artwork],
+    alt: `${seed.name}, NFT da coleção ${seed.collection}`,
+  }
 
   return {
     id,
@@ -311,7 +333,7 @@ function buildNft(seed: Seed, index: number): MockNft {
       'A propriedade inclui a arte em alta resolução, lançamentos exclusivos para colecionadores e um registro permanente de procedência registrada na rede.',
     ],
     gallery: Array.from({ length: 4 }, (_, position) => ({
-      src: DEFAULT_IMAGE,
+      src: artworks[seed.artwork],
       alt: `${seed.name}, imagem ${position + 1} de 4`,
     })),
     editions,

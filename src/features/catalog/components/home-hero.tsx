@@ -13,36 +13,38 @@ export function HomeHero() {
   return (
     <section
       aria-labelledby="hero-title"
-      className="grid gap-10 pt-8 lg:grid-cols-[minmax(0,1fr)_450px] lg:gap-6"
+      className="mt-8 hidden gap-6 md:flex md:flex-row md:items-center md:justify-between lg:h-[450px] lg:pl-10"
     >
-      <div className="flex flex-col lg:pt-10 lg:pl-10">
-        <p className="text-sm font-medium text-fg">Bem-vindo à Kurio</p>
-        <h1
-          id="hero-title"
-          className="mt-3 text-[2rem] leading-[1.6] font-bold uppercase xl:text-[2.75rem]"
-        >
-          <span className="block">Seja dono do futuro</span>
-          <span className="block">da arte digital</span>
-        </h1>
-        <p className="mt-1 max-w-[34.5rem] text-sm leading-6 text-fg-muted">
-          Descubra NFTs selecionados de criadores emergentes e consagrados. Colecione arte digital
-          rara, apoie artistas e tenha uma parte da cultura da internet.
-        </p>
-        <Link
-          to="/"
-          hash="catalogo"
-          search={(prev) => prev}
-          className="mt-9 inline-flex h-10 w-fit items-center rounded-sm bg-primary px-7 text-base font-bold text-primary-fg uppercase transition-colors hover:bg-primary/90"
-        >
-          Explorar
-        </Link>
+      <div className="flex min-w-0 flex-col md:flex-1 lg:w-[600px] lg:flex-none">
+        <div className="flex flex-col items-start gap-8">
+          <div>
+            <p className="text-sm leading-4 font-medium tracking-[0.1em] text-fg">
+              Bem-vindo à Kurio
+            </p>
+            <h1
+              id="hero-title"
+              className="mt-2 text-[2rem] leading-[1.6] font-bold uppercase xl:text-[2.6875rem] xl:leading-[4.375rem]"
+            >
+              <span className="block">Seja dono do futuro</span>
+              <span className="block">da arte digital</span>
+            </h1>
+            <p className="mt-1 max-w-[34.8125rem] text-sm leading-6 text-fg-muted">
+              Descubra NFTs selecionados de criadores emergentes e consagrados. Colecione arte
+              digital rara, apoie artistas e tenha uma parte da cultura da internet.
+            </p>
+          </div>
+          <Link
+            to="/"
+            hash="catalogo"
+            search={(prev) => prev}
+            className="inline-flex h-10 w-[8.75rem] items-center justify-center rounded-[6px] bg-primary pr-2 text-base leading-5 font-bold text-primary-fg uppercase transition-colors hover:bg-primary/90"
+          >
+            Explorar
+          </Link>
+        </div>
 
         {slides.length > 1 && (
-          <div
-            role="group"
-            aria-label="Destaques"
-            className="mt-6 flex justify-end gap-0.5 lg:mt-auto lg:pr-[4.5rem] lg:pb-11"
-          >
+          <div role="group" aria-label="Destaques" className="-my-2 mt-9 flex self-end">
             {slides.map((slide, index) => (
               <button
                 key={slide.id}
@@ -62,7 +64,7 @@ export function HomeHero() {
         )}
       </div>
 
-      <div className="aspect-square w-full max-w-[450px] justify-self-center lg:justify-self-end">
+      <div className="aspect-square w-[18.75rem] shrink-0 lg:w-[28.125rem]">
         {isPending && <Skeleton className="size-full rounded-3xl" />}
         {isError && (
           <div className="flex size-full items-center justify-center rounded-3xl bg-surface p-6 text-center text-sm text-fg-muted">

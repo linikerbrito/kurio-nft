@@ -1,9 +1,20 @@
 import type { ReactNode } from 'react'
 import { Link } from '@tanstack/react-router'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import arrowIcon from '@/assets/figma/arrow-right2.svg'
+import { MaskIcon } from '@/shared/components/mask-icon'
+
+/** The Figma chevron points down; it is rotated to point sideways. */
+function PageArrow({ direction }: { direction: 'previous' | 'next' }) {
+  return (
+    <MaskIcon
+      src={arrowIcon}
+      className={`h-[0.4219rem] w-3 ${direction === 'next' ? '-rotate-90' : 'rotate-90'}`}
+    />
+  )
+}
 
 const itemClass =
-  'flex size-9 items-center justify-center rounded-sm border border-border-default text-base text-fg transition-colors hover:border-primary hover:text-primary'
+  'flex size-[2.1875rem] items-center justify-center rounded-[4px] border border-line text-lg leading-4 text-fg transition-colors hover:border-primary hover:text-fg-accent'
 const currentClass = 'border-primary bg-primary font-bold text-primary-fg hover:text-primary-fg'
 
 /** Up to five page numbers around the current page, with gaps marked by null. */
@@ -41,12 +52,10 @@ export function CatalogPagination({ page, totalPages }: CatalogPaginationProps) 
   }
 
   return (
-    <nav aria-label="Paginação do catálogo" className="mt-14 flex justify-end">
+    <nav aria-label="Paginação do catálogo" className="mt-[5.5rem] flex justify-end">
       <ul className="flex flex-wrap gap-2">
         {page > 1 && (
-          <li>
-            {pageLink(page - 1, 'Página anterior', <ChevronLeft aria-hidden="true" size={18} />)}
-          </li>
+          <li>{pageLink(page - 1, 'Página anterior', <PageArrow direction="previous" />)}</li>
         )}
         {pageWindow(page, totalPages).map((item, index) =>
           item === null ? (
@@ -62,9 +71,7 @@ export function CatalogPagination({ page, totalPages }: CatalogPaginationProps) 
           ),
         )}
         {page < totalPages && (
-          <li>
-            {pageLink(page + 1, 'Próxima página', <ChevronRight aria-hidden="true" size={18} />)}
-          </li>
+          <li>{pageLink(page + 1, 'Próxima página', <PageArrow direction="next" />)}</li>
         )}
       </ul>
     </nav>

@@ -12,7 +12,12 @@
   --color-required: #f0805f;
   --color-primary-fg: #140d0a;
   --color-border-subtle: color-mix(in srgb, var(--color-border) 30%, transparent);
-  --color-surface-warm: color-mix(in srgb, var(--color-primary) 18%, var(--color-bg));
+  --color-surface-warm: #38220f;
+  --color-fg-accent: #e89b55;
+  --color-fg-subtle: #b39463;
+  --color-line: #3f2319;
+  --color-line-soft: #55321f;
+  --color-surface-raised: #2f1d15;
   --font-sans: 'Roboto Mono Variable', ui-monospace, monospace;
   --text-body-lg: 1rem;
   --text-body-lg--line-height: 1;

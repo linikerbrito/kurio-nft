@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useId, useState } from 'react'
 import { useCatalogSearch } from '@/features/catalog/hooks/use-catalog-search'
 import type { CatalogFacets } from '@/features/catalog/types/catalog'
 import { centsToEth, ethToCents, formatEthLocale } from '@/lib/eth'
@@ -6,26 +6,27 @@ import { Button } from '@/shared/ui/button'
 import { Skeleton } from '@/shared/ui/skeleton'
 import { Slider } from '@/shared/ui/slider'
 
-const sectionTitleClass = 'text-lg font-bold text-fg'
+const sectionTitleClass = 'text-lg leading-4 font-bold text-fg'
 
 interface FilterOptionProps {
   label: string
   count: number
   selected: boolean
   onToggle: () => void
+  boldCount?: boolean
 }
 
-function FilterOption({ label, count, selected, onToggle }: FilterOptionProps) {
+function FilterOption({ label, count, selected, onToggle, boldCount = false }: FilterOptionProps) {
   return (
     <li>
       <button
         type="button"
         aria-pressed={selected}
         onClick={onToggle}
-        className="flex w-full items-center justify-between rounded-sm px-3 py-[0.5625rem] text-[0.9375rem] text-fg-muted transition-colors hover:text-primary aria-pressed:font-semibold aria-pressed:text-primary"
+        className="flex w-full items-center justify-between rounded-sm text-[0.9375rem] leading-10 text-fg-muted transition-colors hover:text-fg-accent aria-pressed:font-semibold aria-pressed:text-fg-accent"
       >
         <span>{label}</span>
-        <span aria-hidden="true" className="font-semibold">
+        <span aria-hidden="true" className={boldCount ? 'font-bold' : undefined}>
           ({count})
         </span>
         <span className="sr-only">, {count} NFTs</span>
@@ -47,6 +48,7 @@ interface PriceFilterProps {
 }
 
 function PriceFilter({ range, minPrice, maxPrice, onApply }: PriceFilterProps) {
+  const idPrefix = useId()
   const bounds: [number, number] = [ethToCents(range.min), ethToCents(range.max)]
   const [value, setValue] = useState<[number, number]>([
     ethToCents(minPrice ?? range.min),
@@ -62,8 +64,8 @@ function PriceFilter({ range, minPrice, maxPrice, onApply }: PriceFilterProps) {
   }
 
   return (
-    <section aria-labelledby="price-filter-title" className="space-y-3">
-      <h3 id="price-filter-title" className={sectionTitleClass}>
+    <section aria-labelledby={`${idPrefix}-price-filter-title`} className="space-y-3">
+      <h3 id={`${idPrefix}-price-filter-title`} className={sectionTitleClass}>
         Faixa de preço
       </h3>
       <Slider
@@ -78,15 +80,15 @@ function PriceFilter({ range, minPrice, maxPrice, onApply }: PriceFilterProps) {
         }}
         thumbLabels={['Preço mínimo', 'Preço máximo']}
         thumbValueText={(cents) => `${formatEthLocale(centsToEth(cents))} ETH`}
-        className="px-3"
+        className="ml-3 h-[0.9375rem] w-[calc(100%-0.75rem)]"
       />
-      <p className="px-3 text-[0.9375rem] text-fg" aria-live="polite">
+      <p className="pl-3 text-[0.9375rem] leading-[1.125rem] text-fg" aria-live="polite">
         Preço: {formatEthLocale(centsToEth(low))} - {formatEthLocale(centsToEth(high))} ETH
       </p>
       <Button
         type="button"
         onClick={handleApply}
-        className="mx-3 h-9 px-3 text-[0.9375rem] font-bold"
+        className="ml-3 h-9 px-3 text-base leading-5 font-bold"
       >
         Aplicar
       </Button>
@@ -101,6 +103,7 @@ interface CatalogFiltersProps {
 
 export function CatalogFilters({ facets, unavailable }: CatalogFiltersProps) {
   const { search, updateFilters } = useCatalogSearch()
+  const idPrefix = useId()
 
   if (!facets) {
     return unavailable ? (
@@ -113,17 +116,18 @@ export function CatalogFilters({ facets, unavailable }: CatalogFiltersProps) {
   }
 
   return (
-    <div className="space-y-6 bg-surface px-5 pt-4 pb-6">
-      <section aria-labelledby="category-filter-title" className="space-y-3">
-        <h3 id="category-filter-title" className={sectionTitleClass}>
+    <div className="space-y-10 bg-surface px-5 pt-5 pb-7">
+      <section aria-labelledby={`${idPrefix}-category-filter-title`} className="space-y-3">
+        <h3 id={`${idPrefix}-category-filter-title`} className={sectionTitleClass}>
           Coleções
         </h3>
-        <ul>
+        <ul className="px-3">
           {facets.categories.map((facet) => (
             <FilterOption
               key={facet.id}
               label={facet.label}
               count={facet.count}
+              boldCount
               selected={search.category?.includes(facet.id) ?? false}
               onToggle={() => updateFilters({ category: toggle(search.category, facet.id) })}
             />
@@ -139,11 +143,11 @@ export function CatalogFilters({ facets, unavailable }: CatalogFiltersProps) {
         onApply={(minPrice, maxPrice) => updateFilters({ minPrice, maxPrice })}
       />
 
-      <section aria-labelledby="network-filter-title" className="space-y-3">
-        <h3 id="network-filter-title" className={sectionTitleClass}>
+      <section aria-labelledby={`${idPrefix}-network-filter-title`} className="space-y-3">
+        <h3 id={`${idPrefix}-network-filter-title`} className={sectionTitleClass}>
           Rede
         </h3>
-        <ul>
+        <ul className="pl-3">
           {facets.networks.map((facet) => (
             <FilterOption
               key={facet.id}
@@ -161,21 +165,21 @@ export function CatalogFilters({ facets, unavailable }: CatalogFiltersProps) {
 
 function CatalogFiltersSkeleton() {
   return (
-    <div aria-hidden="true" className="space-y-6 bg-surface px-5 pt-4 pb-6">
+    <div aria-hidden="true" className="space-y-10 bg-surface p-5">
       <div className="space-y-3">
-        <Skeleton className="h-6 w-28" />
+        <Skeleton className="h-4 w-28" />
         {Array.from({ length: 9 }, (_, index) => (
           <Skeleton key={index} className="mx-3 my-[0.8125rem] h-[0.875rem]" />
         ))}
       </div>
       <div className="space-y-4">
-        <Skeleton className="h-6 w-36" />
+        <Skeleton className="h-4 w-36" />
         <Skeleton className="mx-3 h-4" />
         <Skeleton className="mx-3 h-5 w-44" />
         <Skeleton className="mx-3 h-9 w-24" />
       </div>
       <div className="space-y-3">
-        <Skeleton className="h-6 w-16" />
+        <Skeleton className="h-4 w-16" />
         {Array.from({ length: 3 }, (_, index) => (
           <Skeleton key={index} className="mx-3 my-[0.8125rem] h-[0.875rem]" />
         ))}

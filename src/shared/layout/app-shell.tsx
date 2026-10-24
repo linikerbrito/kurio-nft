@@ -24,7 +24,7 @@ export function AppShell() {
       <main
         id="main"
         tabIndex={-1}
-        className={`page-container min-h-[50vh] ${showBottomNav ? 'pb-28 md:pb-0' : ''}`}
+        className={`page-container min-h-[50vh] ${showBottomNav ? 'pb-36 md:pb-0' : ''}`}
       >
         <Outlet />
       </main>
