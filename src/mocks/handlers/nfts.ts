@@ -27,6 +27,7 @@ const TRENDING_MIN_POPULARITY = 600
 const listQuerySchema = z
   .object({
     q: z.string().trim().max(80).optional(),
+    collection: z.string().trim().max(80).optional(),
     category: z.array(categoryIdSchema),
     network: z.array(networkSchema),
     minPrice: ethAmountSchema.optional(),
@@ -93,6 +94,7 @@ function matchesTab(nft: MockNft, query: ListQuery, newestListing: number): bool
 function matchesFilters(nft: MockNft, query: ListQuery): boolean {
   const price = new Decimal(nft.price)
   return (
+    (query.collection === undefined || nft.collection.id === query.collection) &&
     (query.category.length === 0 || query.category.includes(nft.category)) &&
     (query.network.length === 0 || query.network.includes(nft.network)) &&
     (query.minPrice === undefined || price.gte(query.minPrice)) &&
@@ -147,6 +149,7 @@ export const nftHandlers = [
     const params = new URL(request.url).searchParams
     const parsed = listQuerySchema.safeParse({
       q: params.get('q') ?? undefined,
+      collection: params.get('collection') ?? undefined,
       category: params.getAll('category'),
       network: params.getAll('network'),
       minPrice: params.get('minPrice') ?? undefined,

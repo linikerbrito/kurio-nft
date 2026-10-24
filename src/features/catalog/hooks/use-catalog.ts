@@ -61,3 +61,20 @@ export function useFeaturedNfts() {
 export function useNft(id: string) {
   return useQuery(nftDetailQueryOptions(id))
 }
+
+const COLLECTION_PAGE_SIZE = 16
+
+/** Other NFTs of the same collection, newest first; the caller drops the current one. */
+export function useCollectionNfts(collectionId: string | undefined) {
+  return useQuery({
+    ...nftListQueryOptions({
+      collection: collectionId,
+      tab: 'all',
+      sort: 'recent',
+      page: 1,
+      pageSize: COLLECTION_PAGE_SIZE,
+    }),
+    enabled: collectionId !== undefined,
+    placeholderData: undefined,
+  })
+}

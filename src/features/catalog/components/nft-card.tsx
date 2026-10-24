@@ -1,5 +1,6 @@
-import { Link, useRouterState } from '@tanstack/react-router'
+import { Link } from '@tanstack/react-router'
 import heartButton from '@/assets/figma/mobile/m-heart-button.svg'
+import { useLoginRedirectSearch } from '@/features/auth/hooks/use-login-redirect-search'
 import type { NftSummary } from '@/features/catalog/types/catalog'
 import { formatEth } from '@/lib/eth'
 import { Skeleton } from '@/shared/ui/skeleton'
@@ -8,14 +9,17 @@ interface NftCardProps {
   nft: NftSummary
   /** Above-the-fold cards load eagerly to keep LCP low. */
   eager?: boolean
+  /** `compact` uses the smaller type of the "Mais desta coleção" row. */
+  size?: 'default' | 'compact'
 }
 
 /**
  * Phones get the framed card of the mobile design (gradient frame, favorite button, RARO tag);
  * from `md` up it becomes the flat card of the desktop grid.
  */
-export function NftCard({ nft, eager = false }: NftCardProps) {
-  const currentHref = useRouterState({ select: (state) => state.location.href })
+export function NftCard({ nft, eager = false, size = 'default' }: NftCardProps) {
+  const compact = size === 'compact'
+  const loginSearch = useLoginRedirectSearch()
 
   return (
     <article className="group relative rounded-[20px] outline-offset-4 has-[a:focus-visible]:outline-2 has-[a:focus-visible]:outline-primary md:rounded-sm">
@@ -32,7 +36,7 @@ export function NftCard({ nft, eager = false }: NftCardProps) {
           />
           <Link
             to="/login"
-            search={{ redirect: currentHref }}
+            search={loginSearch}
             aria-label={`Favoritar ${nft.name} (entre na sua conta para salvar)`}
             className="absolute top-2 right-2 z-10 rounded-full md:hidden"
           >
@@ -46,7 +50,11 @@ export function NftCard({ nft, eager = false }: NftCardProps) {
           </span>
         )}
       </div>
-      <h3 className="mt-2 truncate pl-2 text-[0.9375rem] text-fg md:mt-3 md:pl-0 md:text-base md:leading-4">
+      <h3
+        className={`mt-2 truncate pl-2 text-[0.9375rem] text-fg md:mt-3 md:pl-0 ${
+          compact ? 'md:leading-[1.3]' : 'md:text-base md:leading-4'
+        }`}
+      >
         <Link
           to="/nft/$nftId"
           params={{ nftId: nft.id }}
@@ -55,7 +63,11 @@ export function NftCard({ nft, eager = false }: NftCardProps) {
           {nft.name}
         </Link>
       </h3>
-      <p className="pl-2 text-base leading-4 font-bold text-fg-accent md:mt-1.5 md:pl-0 md:text-lg">
+      <p
+        className={`pl-2 text-base leading-4 font-bold text-fg-accent md:pl-0 ${
+          compact ? '' : 'md:mt-1.5 md:text-lg'
+        }`}
+      >
         {formatEth(nft.price)}
         {nft.previousPrice && (
           <span className="ml-3 font-normal text-fg-subtle">

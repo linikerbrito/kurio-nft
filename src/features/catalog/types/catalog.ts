@@ -123,6 +123,8 @@ export type CatalogSearch = z.infer<typeof catalogSearchSchema>
 /** Normalized parameters sent to `GET /nfts`. */
 export interface NftListQuery {
   q?: string
+  /** Collection id, used by "Mais desta coleção" on the detail page. */
+  collection?: string
   category?: CategoryId[]
   network?: Network[]
   minPrice?: string
