@@ -8,7 +8,7 @@ import tseslint from 'typescript-eslint'
 import { defineConfig, globalIgnores } from 'eslint/config'
 
 export default defineConfig([
-  globalIgnores(['dist']),
+  globalIgnores(['dist', 'src/routeTree.gen.ts']),
   {
     files: ['**/*.{ts,tsx}'],
     extends: [
@@ -27,6 +27,12 @@ export default defineConfig([
       'jsx-a11y': jsxA11y,
     },
     rules: jsxA11y.configs.recommended.rules,
+  },
+  {
+    files: ['src/router.tsx', 'src/routes/**/*.{ts,tsx}'],
+    rules: {
+      'react-refresh/only-export-components': 'off',
+    },
   },
   eslintConfigPrettier,
 ])
