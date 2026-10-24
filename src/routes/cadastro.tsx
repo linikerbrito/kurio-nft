@@ -16,5 +16,12 @@ const redirectSearchSchema = z.object({
 
 export const Route = createFileRoute('/cadastro')({
   validateSearch: redirectSearchSchema,
+  staticData: {
+    layout: {
+      header: true,
+      footer: false,
+      bottomNav: false,
+    },
+  },
   component: RegisterPage,
 })

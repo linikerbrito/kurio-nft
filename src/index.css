@@ -12,6 +12,7 @@
   --color-required: #f0805f;
   --color-primary-fg: #140d0a;
   --color-border-subtle: color-mix(in srgb, var(--color-border) 30%, transparent);
+  --color-surface-warm: color-mix(in srgb, var(--color-primary) 18%, var(--color-bg));
   --font-sans: 'Roboto Mono Variable', ui-monospace, monospace;
   --text-body-lg: 1rem;
   --text-body-lg--line-height: 1;
@@ -65,6 +66,13 @@
   --border: var(--color-border-subtle);
   --input: var(--color-border-subtle);
   --ring: var(--color-primary);
+}
+
+@utility page-container {
+  margin-inline: auto;
+  width: 100%;
+  max-width: calc(1200px + 3rem);
+  padding-inline: 1.5rem;
 }
 
 @layer base {

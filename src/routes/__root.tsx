@@ -1,20 +1,18 @@
-import { createRootRouteWithContext, Outlet } from '@tanstack/react-router'
+import { createRootRouteWithContext } from '@tanstack/react-router'
 import type { QueryClient } from '@tanstack/react-query'
-import { Toaster } from '@/shared/ui/sonner'
+import { AppShell } from '@/shared/layout/app-shell'
 
 interface RouterContext {
   queryClient: QueryClient
 }
 
 export const Route = createRootRouteWithContext<RouterContext>()({
-  component: RootLayout,
+  component: AppShell,
+  staticData: {
+    layout: {
+      header: true,
+      footer: true,
+      bottomNav: false,
+    },
+  },
 })
-
-function RootLayout() {
-  return (
-    <>
-      <Outlet />
-      <Toaster />
-    </>
-  )
-}

@@ -25,4 +25,12 @@ declare module '@tanstack/react-router' {
   interface Register {
     router: typeof router
   }
+
+  interface StaticDataRouteOption {
+    layout?: {
+      header?: boolean
+      footer?: boolean
+      bottomNav?: boolean
+    }
+  }
 }
