@@ -91,6 +91,7 @@ export function CatalogResults({ query }: CatalogResultsProps) {
       {data && data.items.length > 0 && (
         <>
           <ul
+            aria-label="Resultados do catálogo"
             aria-busy={isPlaceholderData}
             className={`${gridClass} transition-opacity ${isPlaceholderData ? 'opacity-60' : ''}`}
           >
