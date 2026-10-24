@@ -1,5 +1,6 @@
 import { Link, useRouterState } from '@tanstack/react-router'
-import { LogIn, Search, ShoppingCart } from 'lucide-react'
+import { LogIn, ShoppingCart } from 'lucide-react'
+import { SearchDialog } from '@/features/catalog/components/search-dialog'
 import { useCartCount } from '@/features/cart/hooks/use-cart-count'
 import { isMarketPath } from '@/shared/layout/navigation-state'
 import { UnavailableAction } from '@/shared/components/unavailable-action'
@@ -53,9 +54,7 @@ export function Header() {
         </nav>
 
         <div className="flex items-center gap-3">
-          <Link to="/" hash="catalogo" aria-label="Buscar" className={actionClass}>
-            <Search aria-hidden="true" size={22} />
-          </Link>
+          <SearchDialog triggerClassName={actionClass} />
           <Link
             to="/carrinho"
             aria-label={`Carrinho, ${cartCount} ${cartCount === 1 ? 'item' : 'itens'}`}
