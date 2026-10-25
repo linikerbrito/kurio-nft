@@ -7,6 +7,7 @@ import { CartSummary } from '@/features/cart/components/cart-summary'
 import { useCart } from '@/features/cart/hooks/use-cart'
 import type { Cart } from '@/features/cart/types/cart'
 import { BackButton } from '@/shared/components/back-button'
+import { PageTrail } from '@/shared/components/page-trail'
 import { Button } from '@/shared/ui/button'
 import { Skeleton } from '@/shared/ui/skeleton'
 
@@ -56,20 +57,7 @@ export function CartPage() {
         <h1 className="text-center text-xl leading-4 font-bold text-fg">Carrinho de NFTs</h1>
       </div>
 
-      <nav
-        aria-label="Trilha"
-        className="mt-8 hidden text-[0.9375rem] leading-4 font-bold text-fg md:block"
-      >
-        <Link to="/" className="hover:text-fg-accent">
-          Início
-        </Link>
-        <span aria-hidden="true"> / </span>
-        <Link to="/" hash="catalogo" className="hover:text-fg-accent">
-          Mercado
-        </Link>
-        <span aria-hidden="true"> / </span>
-        <span aria-current="page">Carrinho</span>
-      </nav>
+      <PageTrail current="Carrinho" />
       <h1 className="sr-only hidden md:block">Carrinho</h1>
 
       {content}

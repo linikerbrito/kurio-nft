@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm, type FieldValues, type Path, type UseFormReturn } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import { AuthField } from '@/features/auth/components/auth-field'
 import { useLogin, useRegister } from '@/features/auth/hooks/use-session'
 import {
@@ -9,23 +9,10 @@ import {
   type RegisterFormValues,
   type User,
 } from '@/features/auth/types/auth'
-import { toApiError } from '@/lib/http'
+import { applyApiError } from '@/lib/form-errors'
 import { UnavailableAction } from '@/shared/components/unavailable-action'
 
 type Variant = 'desktop' | 'mobile'
-
-/** API field errors go to their fields; anything else becomes the form-level message. */
-function applyApiError<T extends FieldValues>(form: UseFormReturn<T>, error: unknown) {
-  const apiError = toApiError(error)
-  const fields = Object.entries(apiError.fieldErrors)
-  if (fields.length === 0) {
-    form.setError('root', { message: apiError.message })
-    return
-  }
-  for (const [field, message] of fields) {
-    form.setError(field as Path<T>, { message }, { shouldFocus: true })
-  }
-}
 
 function FormError({ message }: { message: string | undefined }) {
   if (!message) return null

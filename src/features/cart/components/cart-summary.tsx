@@ -1,6 +1,6 @@
 import { Link } from '@tanstack/react-router'
 import { CouponForm } from '@/features/cart/components/coupon-form'
-import type { Cart } from '@/features/cart/types/cart'
+import type { Cart, CartSummary as Summary } from '@/features/cart/types/cart'
 import { formatEth } from '@/lib/eth'
 
 interface CartSummaryProps {
@@ -13,32 +13,9 @@ export function CartSummary({ cart, variant }: CartSummaryProps) {
   const mobile = variant === 'mobile'
   const { summary } = cart
   const blocked = cart.items.length === 0 || cart.items.some((item) => item.issue !== null)
-  const valueClass = mobile ? 'text-base leading-4' : 'text-lg leading-4'
 
   const rows = (
-    <dl className="space-y-3 text-[0.9375rem] leading-5 text-fg">
-      <div className="flex items-start justify-between gap-3">
-        <dt>Subtotal</dt>
-        <dd className={valueClass}>{formatEth(summary.subtotal)}</dd>
-      </div>
-      <div className="flex items-start justify-between gap-3">
-        <dt>{cart.coupon?.description ?? 'Desconto do lançamento'}</dt>
-        <dd>(-) {formatEth(summary.discount)}</dd>
-      </div>
-      <div className="flex items-start justify-between gap-3">
-        <dt>Taxa de rede</dt>
-        <dd className="text-right">
-          <span className={`block ${valueClass}`}>{formatEth(summary.networkFee)}</span>
-          <span className={`block text-xs leading-4 text-fg-accent ${mobile ? '' : 'mt-3'}`}>
-            Taxa estimada
-          </span>
-        </dd>
-      </div>
-      <div className="flex items-start justify-between gap-3 leading-4 font-bold">
-        <dt className="text-base">Total</dt>
-        <dd className="text-lg text-fg-accent">{formatEth(summary.total)}</dd>
-      </div>
-    </dl>
+    <SummaryRows summary={summary} discountLabel={cart.coupon?.description} variant={variant} />
   )
 
   const checkoutClass = mobile
@@ -97,5 +74,44 @@ export function CartSummary({ cart, variant }: CartSummaryProps) {
         </Link>
       </div>
     </aside>
+  )
+}
+
+interface SummaryRowsProps {
+  summary: Summary
+  /** Coupon description, when one is applied. */
+  discountLabel?: string
+  variant: 'desktop' | 'mobile'
+}
+
+/** Subtotal, discount, network fee and total, as the API priced them. */
+export function SummaryRows({ summary, discountLabel, variant }: SummaryRowsProps) {
+  const mobile = variant === 'mobile'
+  const valueClass = mobile ? 'text-base leading-4' : 'text-lg leading-4'
+
+  return (
+    <dl className="space-y-3 text-[0.9375rem] leading-5 text-fg">
+      <div className="flex items-start justify-between gap-3">
+        <dt>Subtotal</dt>
+        <dd className={valueClass}>{formatEth(summary.subtotal)}</dd>
+      </div>
+      <div className="flex items-start justify-between gap-3">
+        <dt>{discountLabel ?? 'Desconto do lançamento'}</dt>
+        <dd>(-) {formatEth(summary.discount)}</dd>
+      </div>
+      <div className="flex items-start justify-between gap-3">
+        <dt>Taxa de rede</dt>
+        <dd className="text-right">
+          <span className={`block ${valueClass}`}>{formatEth(summary.networkFee)}</span>
+          <span className={`block text-xs leading-4 text-fg-accent ${mobile ? '' : 'mt-3'}`}>
+            Taxa estimada
+          </span>
+        </dd>
+      </div>
+      <div className="flex items-start justify-between gap-3 leading-4 font-bold">
+        <dt className="text-base">Total</dt>
+        <dd className="text-lg text-fg-accent">{formatEth(summary.total)}</dd>
+      </div>
+    </dl>
   )
 }
