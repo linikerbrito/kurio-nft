@@ -73,3 +73,35 @@ export async function closeFilters(page: Page, isMobileLayout: boolean): Promise
 export function filterOption(scope: Locator, label: string): Locator {
   return scope.getByRole('button', { name: new RegExp(`^${label}\\s*,`) })
 }
+
+/** Demo accounts of the mocks (password documented in the README). */
+export const DEMO_PASSWORD = 'Kurio@123'
+export const ANA = { name: 'Ana Colecionadora', email: 'ana@kurio.dev' }
+export const BRUNO = { name: 'Bruno Criador', email: 'bruno@kurio.dev' }
+
+/** Fills and submits the login form shown at `/login` (dialog or page). */
+export async function signIn(page: Page, email: string, password = DEMO_PASSWORD): Promise<void> {
+  await page.getByLabel('E-mail', { exact: true }).filter({ visible: true }).fill(email)
+  await page.getByLabel('Senha', { exact: true }).filter({ visible: true }).fill(password)
+  await page.getByRole('button', { name: 'Entrar', exact: true }).filter({ visible: true }).click()
+}
+
+/** Signs out through the header menu (desktop) or the profile screen (phones). */
+export async function signOut(page: Page, isMobileLayout: boolean): Promise<void> {
+  if (isMobileLayout) {
+    await page.goto('/perfil')
+    await page.getByRole('button', { name: 'Sair da conta' }).click()
+  } else {
+    await page.getByRole('button', { name: /^Conta de / }).click()
+    await page.getByRole('menuitem', { name: 'Sair' }).click()
+  }
+  await expect(page.getByText('Você saiu da sua conta.')).toBeVisible()
+}
+
+export async function expireSessions(page: Page): Promise<void> {
+  await page.evaluate(() => {
+    const controls = (window as Window & { kurioMocks?: { expireSessions: () => void } }).kurioMocks
+    if (!controls) throw new Error('Mock controls are not installed')
+    controls.expireSessions()
+  })
+}
