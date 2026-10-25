@@ -171,7 +171,7 @@ Controles do lado do servidor, para demonstração e testes, ficam em `window.ku
 - **Persistência:** o banco simulado (`src/mocks/db.ts`) persiste no `localStorage` carrinhos, contas, sessões, favoritos, carteiras e pedidos. O catálogo recomeça dos fixtures, descontado o vendido.
 - **Reset:** `kurioMocks.reset()` restaura o estado inicial conhecido.
 - **Fixtures:** 40 NFTs (variedade para filtros e paginação), 2 usuários e as carteiras deles.
-- **Cenários:** determinísticos (lista no README), com latência variável em ciclo fixo.
+- **Cenários:** determinísticos (lista no README), com latência variável em ciclo fixo. As condições de rede (`offline`: sem resposta; `timeout`: resposta depois do timeout do cliente) ficam num handler à frente de todos, que só age nesses cenários e deixa a requisição seguir nos demais; `out-of-order` atrasa uma aba do catálogo para provar que respostas antigas não sobrescrevem as novas.
 - **Coerência:** REST e eventos leem o mesmo banco. Uma mudança feita pelos controles aparece tanto na resposta REST quanto no evento.
 
 ## Acessibilidade

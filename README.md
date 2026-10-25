@@ -71,6 +71,9 @@ Os mocks guardam carrinhos, contas, sessões, favoritos, carteiras e pedidos no 
 | `price-changed`    | Um preço sobe 0,05 ETH enquanto o pedido é enviado (uma vez por carga).      |
 | `order-timeout`    | O pedido é criado, mas a resposta chega depois do timeout de 4 s do cliente. |
 | `payment-rejected` | O pagamento é recusado.                                                      |
+| `offline`          | A API não responde (erro de rede).                                           |
+| `timeout`          | Toda resposta chega depois do timeout de 10 s do cliente.                    |
+| `out-of-order`     | A aba "Em alta" responde 1,5 s depois das outras (respostas fora de ordem).  |
 
 Como escolher:
 
@@ -84,20 +87,22 @@ Reset completo: `kurioMocks.reset()` no console e recarregue a página. A lista 
 
 Todos os controles ficam no objeto `kurioMocks` do console (só existe com mocks ligados) e agem do lado do servidor simulado.
 
-| Fluxo                                      | Como                                                                                                                                           |
-| ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| Lentidão, vazio, erro e nova tentativa     | Cenários `slow`, `empty`, `error`; volte para `default` e use "Tentar novamente".                                                              |
-| Sessão expirada (navegando ou no checkout) | Entre, depois `kurioMocks.expireSessions()` e faça qualquer ação ou recarregue uma rota privada.                                               |
-| Conflito de cadastro                       | Cadastre `ana@kurio.dev`.                                                                                                                      |
-| Cupom inválido ou expirado                 | `QUALQUER` ou `EXPIRADO` no carrinho.                                                                                                          |
-| Carteira recusada                          | Cenário `wallet-rejected` e "Confirmar compra".                                                                                                |
-| Preço alterado durante a compra            | Cenário `price-changed` e confirme a revisão; ou, com a revisão aberta, `kurioMocks.realtime.updateNft('emerald-ape-042', { price: '1.40' })`. |
-| Edição esgotada durante a compra           | `kurioMocks.realtime.updateNft('emerald-ape-042', { editionId: 'emerald-ape-042-1-10', available: 0 })`.                                       |
-| Timeout com recuperação do mesmo pedido    | Cenário `order-timeout`, confirme e use "Tentar novamente", ou recarregue e use "Retomar compra".                                              |
-| Pagamento recusado                         | Cenário `payment-rejected`.                                                                                                                    |
-| Clique repetido                            | Duplo clique em "Confirmar pagamento" (gera um só pedido).                                                                                     |
-| Eventos duplicados ou antigos              | `kurioMocks.realtime.replayLast()` e `kurioMocks.realtime.emitStale('emerald-ape-042', '0.10')`.                                               |
-| Queda da conexão em tempo real             | `kurioMocks.realtime.disconnect(5000)` (derruba e recusa conexões por 5 s); com um pedido pendente, ele é reconciliado ao reconectar.          |
+| Fluxo                                      | Como                                                                                                                                                                                              |
+| ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Lentidão, vazio, erro e nova tentativa     | Cenários `slow`, `empty`, `error`; volte para `default` e use "Tentar novamente".                                                                                                                 |
+| Sem conexão e tempo esgotado               | Cenários `offline` (o catálogo explica "Sem conexão com o servidor.") e `timeout` (por exemplo, aplicar um cupom mostra "O servidor demorou a responder."); volte para `default` e tente de novo. |
+| Respostas fora de ordem                    | Cenário `out-of-order`: clique em "Em alta" e logo em "Novos lançamentos"; a resposta atrasada não substitui a grade atual.                                                                       |
+| Sessão expirada (navegando ou no checkout) | Entre, depois `kurioMocks.expireSessions()` e faça qualquer ação ou recarregue uma rota privada.                                                                                                  |
+| Conflito de cadastro                       | Cadastre `ana@kurio.dev`.                                                                                                                                                                         |
+| Cupom inválido ou expirado                 | `QUALQUER` ou `EXPIRADO` no carrinho.                                                                                                                                                             |
+| Carteira recusada                          | Cenário `wallet-rejected` e "Confirmar compra".                                                                                                                                                   |
+| Preço alterado durante a compra            | Cenário `price-changed` e confirme a revisão; ou, com a revisão aberta, `kurioMocks.realtime.updateNft('emerald-ape-042', { price: '1.40' })`.                                                    |
+| Edição esgotada durante a compra           | `kurioMocks.realtime.updateNft('emerald-ape-042', { editionId: 'emerald-ape-042-1-10', available: 0 })`.                                                                                          |
+| Timeout com recuperação do mesmo pedido    | Cenário `order-timeout`, confirme e use "Tentar novamente", ou recarregue e use "Retomar compra".                                                                                                 |
+| Pagamento recusado                         | Cenário `payment-rejected`.                                                                                                                                                                       |
+| Clique repetido                            | Duplo clique em "Confirmar pagamento" (gera um só pedido).                                                                                                                                        |
+| Eventos duplicados ou antigos              | `kurioMocks.realtime.replayLast()` e `kurioMocks.realtime.emitStale('emerald-ape-042', '0.10')`.                                                                                                  |
+| Queda da conexão em tempo real             | `kurioMocks.realtime.disconnect(5000)` (derruba e recusa conexões por 5 s); com um pedido pendente, ele é reconciliado ao reconectar.                                                             |
 
 ## Testes
 
@@ -110,9 +115,11 @@ Cobertura:
 - sessão;
 - favoritos;
 - carrinho;
-- compra completa e falhas de pagamento;
+- compra completa, falhas de pagamento e idempotência (mesma chave com outro conteúdo gera conflito);
 - tempo real;
 - perfil e carteiras;
+- rede: sem conexão, tempo esgotado e respostas fora de ordem;
+- teclado e foco: atalho para o conteúdo, navegação, validação pelo Enter, foco preso e devolvido em diálogos e na gaveta de filtros;
 - regressão visual.
 
 Relatório HTML e traces das falhas: `npm run test:e2e:report`. Testes que falham são repetidos uma vez e, se passarem, aparecem como _flaky_ no relatório (ver limitações em [ARCHITECTURE.md](ARCHITECTURE.md#limitações-conhecidas)).
