@@ -1,6 +1,9 @@
 import { Link, useRouterState } from '@tanstack/react-router'
 import cartIcon from '@/assets/figma/cart.svg'
 import logoutIcon from '@/assets/figma/logout.svg'
+import { UserMenu } from '@/features/auth/components/user-menu'
+import { useLoginRedirectSearch } from '@/features/auth/hooks/use-login-redirect-search'
+import { useSession } from '@/features/auth/hooks/use-session'
 import { SearchDialog } from '@/features/catalog/components/search-dialog'
 import { useCartCount } from '@/features/cart/hooks/use-cart'
 import { isMarketPath } from '@/shared/layout/navigation-state'
@@ -17,6 +20,9 @@ const actionClass =
 export function Header() {
   const pathname = useRouterState({ select: (state) => state.location.pathname })
   const cartCount = useCartCount()
+  const { data: session } = useSession()
+  const loginSearch = useLoginRedirectSearch()
+  const onAuthScreen = pathname === '/login' || pathname === '/cadastro'
   const marketActive = isMarketPath(pathname)
   const homeActive = !marketActive
 
@@ -72,15 +78,20 @@ export function Header() {
               </span>
             )}
           </Link>
-          <Link
-            to="/login"
-            className="ml-2.5 inline-flex h-[2.1875rem] w-[6.25rem] items-center justify-center gap-1 rounded-[6px] bg-primary text-base font-medium text-primary-fg transition-colors hover:bg-primary/90"
-          >
-            <span className="flex size-5 items-center justify-center">
-              <MaskIcon src={logoutIcon} className="h-[1.0573rem] w-[1.1111rem]" />
-            </span>
-            Entrar
-          </Link>
+          {session ? (
+            <UserMenu user={session.user} />
+          ) : (
+            <Link
+              to="/login"
+              search={onAuthScreen ? {} : loginSearch}
+              className="ml-2.5 inline-flex h-[2.1875rem] w-[6.25rem] items-center justify-center gap-1 rounded-[6px] bg-primary text-base font-medium text-primary-fg transition-colors hover:bg-primary/90"
+            >
+              <span className="flex size-5 items-center justify-center">
+                <MaskIcon src={logoutIcon} className="h-[1.0573rem] w-[1.1111rem]" />
+              </span>
+              Entrar
+            </Link>
+          )}
         </div>
       </div>
     </header>

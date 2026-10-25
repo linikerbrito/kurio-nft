@@ -1,8 +1,6 @@
-import { useCallback } from 'react'
-import { getRouteApi } from '@tanstack/react-router'
-import type { CatalogSearch } from '@/features/catalog/types/catalog'
-
-const homeRoute = getRouteApi('/')
+import { useCallback, useMemo } from 'react'
+import { useNavigate, useSearch } from '@tanstack/react-router'
+import { catalogSearchSchema, type CatalogSearch } from '@/features/catalog/types/catalog'
 
 /** Drops empty values and defaults so the URL only carries what the user chose. */
 export function cleanCatalogSearch(search: CatalogSearch): CatalogSearch {
@@ -18,27 +16,34 @@ export function cleanCatalogSearch(search: CatalogSearch): CatalogSearch {
   }
 }
 
+/**
+ * Catalog state from the URL. Also works where the home page is a backdrop (the login and
+ * sign-up dialogs): there the search is parsed to the defaults and changes go to `/`.
+ */
 export function useCatalogSearch() {
-  const search = homeRoute.useSearch()
-  const navigate = homeRoute.useNavigate()
+  const rawSearch = useSearch({ strict: false })
+  const search = useMemo(() => catalogSearchSchema.parse(rawSearch), [rawSearch])
+  const navigate = useNavigate()
 
   /** Any filter change goes back to the first page. */
   const updateFilters = useCallback(
     (patch: Partial<CatalogSearch>) =>
       navigate({
-        search: (prev) => cleanCatalogSearch({ ...prev, ...patch, page: undefined }),
+        to: '/',
+        search: cleanCatalogSearch({ ...search, ...patch, page: undefined }),
         resetScroll: false,
       }),
-    [navigate],
+    [navigate, search],
   )
 
   const clearFilters = useCallback(
     () =>
       navigate({
-        search: (prev) => cleanCatalogSearch({ tab: prev.tab, sort: prev.sort }),
+        to: '/',
+        search: cleanCatalogSearch({ tab: search.tab, sort: search.sort }),
         resetScroll: false,
       }),
-    [navigate],
+    [navigate, search],
   )
 
   return { search, updateFilters, clearFilters }

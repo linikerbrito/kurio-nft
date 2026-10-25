@@ -1,3 +1,5 @@
+import { AuthScreen } from '@/features/auth/components/auth-screen'
+
 export function LoginPage() {
-  return <h1>Login</h1>
+  return <AuthScreen mode="login" />
 }

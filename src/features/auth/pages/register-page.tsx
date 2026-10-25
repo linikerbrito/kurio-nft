@@ -1,3 +1,5 @@
+import { AuthScreen } from '@/features/auth/components/auth-screen'
+
 export function RegisterPage() {
-  return <h1>Cadastro</h1>
+  return <AuthScreen mode="register" />
 }
