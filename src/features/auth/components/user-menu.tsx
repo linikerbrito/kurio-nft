@@ -23,7 +23,7 @@ export function UserMenu({ user }: { user: User }) {
     <DropdownMenu>
       <DropdownMenuTrigger
         aria-label={`Conta de ${user.name}`}
-        className="ml-2.5 flex size-[2.1875rem] items-center justify-center overflow-hidden rounded-full bg-primary text-sm font-bold text-primary-fg transition-opacity hover:opacity-90"
+        className="ml-2.5 flex size-[2.1875rem] items-center justify-center overflow-hidden rounded-full bg-primary text-sm font-bold text-primary-fg ring-fg-accent ring-offset-2 ring-offset-bg transition-shadow hover:ring-2 data-[state=open]:ring-2"
       >
         {user.avatarUrl ? (
           <img src={user.avatarUrl} alt="" className="size-full object-cover" />

@@ -23,7 +23,7 @@ function FilterOption({ label, count, selected, onToggle, boldCount = false }: F
         type="button"
         aria-pressed={selected}
         onClick={onToggle}
-        className="flex w-full items-center justify-between rounded-sm text-[0.9375rem] leading-10 text-fg-muted transition-colors hover:text-fg-accent aria-pressed:font-semibold aria-pressed:text-fg-accent"
+        className="-mx-2 flex w-[calc(100%+1rem)] items-center justify-between rounded-sm px-2 text-[0.9375rem] leading-10 text-fg-muted transition-colors hover:bg-surface-warm hover:text-fg-accent aria-pressed:font-semibold aria-pressed:text-fg-accent"
       >
         <span>{label}</span>
         <span aria-hidden="true" className={boldCount ? 'font-bold' : undefined}>

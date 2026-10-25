@@ -91,6 +91,14 @@
     line-height: 1.5;
   }
 
+  /* Tailwind v4 leaves buttons with the arrow cursor; clickable things show the hand. */
+  button:not(:disabled),
+  [role='button']:not([aria-disabled='true']),
+  select:not(:disabled),
+  summary {
+    cursor: pointer;
+  }
+
   :focus-visible {
     outline: 2px solid var(--color-primary);
     outline-offset: 2px;

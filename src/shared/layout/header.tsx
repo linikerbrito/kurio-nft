@@ -20,7 +20,7 @@ const linkClass =
 const activeLinkClass =
   'font-bold text-fg-accent after:absolute after:right-5 after:-bottom-px after:left-5 after:h-0.5 after:bg-primary'
 const actionClass =
-  'relative inline-flex size-10 items-center justify-center rounded-sm text-fg transition-colors hover:bg-surface hover:text-fg-accent'
+  'relative inline-flex size-10 items-center justify-center rounded-sm text-fg transition-colors hover:bg-surface-warm hover:text-fg-accent'
 
 export function Header() {
   const pathname = useRouterState({ select: (state) => state.location.pathname })
