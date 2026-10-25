@@ -6,7 +6,11 @@ import { useFeaturedNfts } from '@/features/catalog/hooks/use-catalog'
 import { formatEth } from '@/lib/eth'
 import { Skeleton } from '@/shared/ui/skeleton'
 
-/** Compact hero of the phone layout: copy on the left, two overlapping artworks on the right. */
+/**
+ * Compact hero of the phone layout: copy on the left, two overlapping artworks on the right.
+ * Below 390 px the artworks shrink (and below 375 px the title) so the title keeps its two
+ * lines; the card grows with the copy instead of cutting it (190 px only fits the 414 px frame).
+ */
 export function MobileHero() {
   const { data, isPending } = useFeaturedNfts()
   const [activeIndex, setActiveIndex] = useState(0)
@@ -17,7 +21,7 @@ export function MobileHero() {
   return (
     <section
       aria-labelledby="mobile-hero-title"
-      className="relative mt-4 flex h-[11.875rem] flex-col items-center justify-center overflow-hidden rounded-[12px] p-4 md:hidden"
+      className="relative mt-4 flex min-h-[11.875rem] flex-col items-center justify-center overflow-hidden rounded-[12px] p-4 md:hidden"
     >
       <img
         src={heroBackground}
@@ -32,7 +36,7 @@ export function MobileHero() {
             <p className="text-xs leading-4 font-medium text-fg">Bem-vindo à Kurio</p>
             <h1
               id="mobile-hero-title"
-              className="mt-1.5 text-lg leading-[1.8125rem] font-bold whitespace-nowrap text-fg"
+              className="mt-1.5 text-base leading-[1.8125rem] font-bold text-fg min-[375px]:text-lg"
             >
               SEJA DONO DA
               <br />
@@ -60,7 +64,7 @@ export function MobileHero() {
             </Link>
           </div>
 
-          <div className="relative size-[8.625rem] shrink-0">
+          <div className="relative size-[7.5rem] shrink-0 min-[390px]:size-[8.625rem]">
             {isPending && <Skeleton className="size-full rounded-2xl" />}
             {activeSlide && (
               <Link
@@ -85,7 +89,7 @@ export function MobileHero() {
                 alt=""
                 width={58}
                 height={58}
-                className="pointer-events-none absolute top-[5.5rem] left-[0.875rem] size-[3.625rem] rounded-2xl object-cover"
+                className="pointer-events-none absolute top-[4.75rem] left-3 size-[3.125rem] rounded-2xl object-cover min-[390px]:top-[5.5rem] min-[390px]:left-[0.875rem] min-[390px]:size-[3.625rem]"
               />
             )}
           </div>
