@@ -1,5 +1,6 @@
-import { useId, type ComponentProps, type ReactNode } from 'react'
+import { useId, useState, type ComponentProps, type ReactNode } from 'react'
 import arrowDown from '@/assets/figma/arrow-down.svg'
+import hideIcon from '@/assets/figma/auth/hide.svg'
 import { MaskIcon } from '@/shared/components/mask-icon'
 
 const controlClass =
@@ -36,17 +37,14 @@ function FieldShell({
 
   return (
     <div className={`flex flex-col gap-1.5 ${className}`}>
-      <label
-        htmlFor={id}
-        className={hiddenLabel ? 'sr-only' : 'text-[0.9375rem] leading-4 text-fg'}
-      >
-        {label}
+      <div className={hiddenLabel ? 'sr-only' : 'flex text-[0.9375rem] leading-4 text-fg'}>
+        <label htmlFor={id}>{label}</label>
         {required && (
           <span aria-hidden="true" className="ml-0.5 text-required">
             *
           </span>
         )}
-      </label>
+      </div>
       {children({ id, describedBy: error ? errorId : undefined })}
       {error && (
         <p id={errorId} className="text-xs text-required">
@@ -67,19 +65,77 @@ export function TextField({
   error,
   className,
   variant,
+  type = 'text',
+  ...inputProps
+}: FieldProps<ComponentProps<'input'>>) {
+  const [revealed, setRevealed] = useState(false)
+  const password = type === 'password'
+
+  return (
+    <FieldShell {...{ label, required, hiddenLabel, error, className }}>
+      {({ id, describedBy }) => {
+        const input = (
+          <input
+            id={id}
+            type={password && revealed ? 'text' : type}
+            aria-required={required || undefined}
+            aria-invalid={error ? true : undefined}
+            aria-describedby={describedBy}
+            className={`${controlClass} ${sizeClass[variant]} ${password ? 'pr-12' : ''}`}
+            {...inputProps}
+          />
+        )
+        if (!password) return input
+        return (
+          <div className="relative">
+            {input}
+            <button
+              type="button"
+              aria-label={
+                revealed ? `Ocultar ${label.toLowerCase()}` : `Mostrar ${label.toLowerCase()}`
+              }
+              aria-pressed={revealed}
+              onClick={() => setRevealed((value) => !value)}
+              className="absolute top-1/2 right-4 flex size-6 -translate-y-1/2 items-center justify-center rounded-sm opacity-80 transition-opacity hover:opacity-100 aria-pressed:opacity-100"
+            >
+              <img src={hideIcon} alt="" className="h-[0.9153rem] w-[1.1863rem]" />
+            </button>
+          </div>
+        )
+      }}
+    </FieldShell>
+  )
+}
+
+/** "Nome ENS": the `.eth` suffix of the design next to the name. */
+export function EnsField({
+  label,
+  required,
+  error,
+  className,
+  variant,
   ...inputProps
 }: FieldProps<ComponentProps<'input'>>) {
   return (
-    <FieldShell {...{ label, required, hiddenLabel, error, className }}>
+    <FieldShell {...{ label, required, error, className }}>
       {({ id, describedBy }) => (
-        <input
-          id={id}
-          aria-required={required || undefined}
-          aria-invalid={error ? true : undefined}
-          aria-describedby={describedBy}
-          className={`${controlClass} ${sizeClass[variant]}`}
-          {...inputProps}
-        />
+        <div className="flex gap-2.5">
+          <span
+            aria-hidden="true"
+            className={`flex shrink-0 items-center border px-3 text-base text-fg ${sizeClass[variant]}`}
+          >
+            .eth
+          </span>
+          <input
+            id={id}
+            aria-required={required || undefined}
+            aria-invalid={error ? true : undefined}
+            aria-describedby={describedBy}
+            autoCapitalize="none"
+            className={`${controlClass} ${sizeClass[variant]}`}
+            {...inputProps}
+          />
+        </div>
       )}
     </FieldShell>
   )

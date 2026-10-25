@@ -1,6 +1,6 @@
 import type { UseFormReturn } from 'react-hook-form'
 import { networkIds, type Network } from '@/features/catalog/types/catalog'
-import { SelectField, TextField } from '@/features/checkout/components/checkout-fields'
+import { SelectField, TextField } from '@/shared/components/form-fields'
 import { selectSavedWallet } from '@/features/checkout/select-saved-wallet'
 import type { CheckoutFormValues } from '@/features/checkout/types/checkout'
 import { networkLabels } from '@/features/nft/network-labels'

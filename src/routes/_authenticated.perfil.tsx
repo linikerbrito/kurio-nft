@@ -1,4 +1,5 @@
-import { createFileRoute, Outlet } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
+import { ProfileLayout } from '@/features/profile/components/profile-layout'
 
 export const Route = createFileRoute('/_authenticated/perfil')({
   staticData: {
@@ -10,7 +11,3 @@ export const Route = createFileRoute('/_authenticated/perfil')({
   },
   component: ProfileLayout,
 })
-
-function ProfileLayout() {
-  return <Outlet />
-}
