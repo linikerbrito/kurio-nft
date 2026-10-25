@@ -32,6 +32,37 @@ test.describe('Layout sem overflow horizontal', () => {
     await expectNoHorizontalOverflow(page, 'Carrinho')
   })
 
+  test('o banner da Início cabe no cartão em celulares estreitos', async ({
+    page,
+    isMobileLayout,
+  }) => {
+    test.skip(!isMobileLayout, 'O banner compacto só existe no celular.')
+    for (const width of [320, 360, 375, 390, 414]) {
+      await page.setViewportSize({ width, height: 800 })
+      await page.goto('/')
+      const hero = page.getByRole('region', { name: 'SEJA DONO DA CULTURA DIGITAL' })
+      await expect(hero.getByRole('group', { name: 'Destaques' })).toBeVisible()
+      const problems = await hero.evaluate((section) => {
+        const box = section.getBoundingClientRect()
+        const cut = [...section.querySelectorAll<HTMLElement>('*')].filter((element) => {
+          const rect = element.getBoundingClientRect()
+          return (
+            rect.width > 0 &&
+            (rect.top < box.top - 0.5 ||
+              rect.bottom > box.bottom + 0.5 ||
+              rect.left < box.left - 0.5 ||
+              rect.right > box.right + 0.5)
+          )
+        })
+        const title = section.querySelector('h1')
+        const titleOverflows = title ? title.scrollWidth > title.clientWidth : false
+        return { cut: cut.map((element) => element.tagName), titleOverflows }
+      })
+      expect(problems, `${width} px`).toEqual({ cut: [], titleOverflows: false })
+      await expectNoHorizontalOverflow(page, `Início ${width} px`)
+    }
+  })
+
   test('telas da conta, pagamento e recibo', async ({ page, isMobileLayout }) => {
     await openCheckout(page)
     await expectNoHorizontalOverflow(page, 'Pagamento')
