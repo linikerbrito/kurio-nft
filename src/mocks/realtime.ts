@@ -63,11 +63,32 @@ export const realtimeHandlers = [
   }),
 ]
 
+/** What the server sent and to whom (the users of the connections that received it). */
+interface DeliveryRecord {
+  type: RealtimeEvent['type']
+  resourceId: string
+  targetUserId: string | null
+  recipients: (string | null)[]
+}
+const DELIVERY_LOG_LIMIT = 100
+const deliveryLog: DeliveryRecord[] = []
+
 function deliver(event: RealtimeEvent, userId: string | null) {
   lastEvent = event
+  const recipients: (string | null)[] = []
   for (const connection of connections) {
-    if (userId === null || connection.userId === userId) connection.emit(event.type, event)
+    if (userId === null || connection.userId === userId) {
+      connection.emit(event.type, event)
+      recipients.push(connection.userId)
+    }
   }
+  deliveryLog.push({
+    type: event.type,
+    resourceId: event.resource.id,
+    targetUserId: userId,
+    recipients,
+  })
+  if (deliveryLog.length > DELIVERY_LOG_LIMIT) deliveryLog.shift()
 }
 
 function nextEventId(): string {
@@ -159,5 +180,9 @@ export const realtimeControls = {
   },
   connectionCount() {
     return connections.size
+  },
+  /** Events sent since the page loaded, with the users that received each one. */
+  deliveries() {
+    return deliveryLog.map((record) => ({ ...record, recipients: [...record.recipients] }))
   },
 }

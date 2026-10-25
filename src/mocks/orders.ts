@@ -177,3 +177,12 @@ export function raiseFirstPrice(cart: MockCart): void {
   touchNft(nft)
   emitNftUpdated(nft)
 }
+
+/** Test control: settles every pending order now, as if its time had come (emits its events). */
+export function settlePendingOrders(): void {
+  const now = Date.now()
+  for (const order of getDb().orders) {
+    if (order.status === 'pending') order.settlesAt = new Date(now).toISOString()
+  }
+  settleDueOrders(now)
+}
