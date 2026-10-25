@@ -44,6 +44,16 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'], viewport: { width: 1440, height: 900 } },
     },
     {
+      // 768 px has no frame: it checks the intermediate layout (visual regression and overflow).
+      name: 'tablet',
+      testMatch: /(visual|layout)\.spec\.ts/,
+      use: {
+        ...devices['Desktop Chrome'],
+        viewport: { width: 768, height: 1024 },
+        hasTouch: true,
+      },
+    },
+    {
       name: 'mobile',
       use: {
         ...devices['Pixel 7'],

@@ -116,3 +116,12 @@ export async function expireSessions(page: Page): Promise<void> {
     controls.expireSessions()
   })
 }
+
+/** Settles pending orders on the simulated server now (instead of waiting their 3 s). */
+export async function settleOrders(page: Page): Promise<void> {
+  await page.evaluate(() => {
+    const controls = (window as Window & { kurioMocks?: { settleOrders: () => void } }).kurioMocks
+    if (!controls) throw new Error('Mock controls are not installed')
+    controls.settleOrders()
+  })
+}

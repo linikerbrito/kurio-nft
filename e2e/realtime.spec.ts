@@ -7,8 +7,9 @@ import {
   openReview,
   ordersCount,
 } from './support/checkout'
-import { ANA, BRUNO, expect, signIn, signOut, test } from './support/fixtures'
+import { ANA, BRUNO, expect, settleOrders, signIn, signOut, test } from './support/fixtures'
 import {
+  deliveries,
   dropConnections,
   emitStaleNft,
   replayLastEvent,
@@ -127,5 +128,48 @@ test.describe('Tempo real', () => {
     await signIn(page, BRUNO.email)
     await expect(page.getByText(`Você entrou como ${BRUNO.name}.`)).toBeVisible()
     await expect.poll(() => socketCount(page)).toBe(1)
+  })
+
+  test('o pedido de outra sessão não chega ao usuário seguinte', async ({
+    page,
+    isMobileLayout,
+  }) => {
+    await openCheckout(page)
+    await fillCheckout(page, isMobileLayout)
+    const review = await openReview(page)
+    await review.getByRole('button', { name: 'Confirmar pagamento' }).click()
+    await expect(
+      page.getByRole('heading', { name: 'Aguardando confirmação da rede' }),
+    ).toBeVisible()
+    const orderId = new URL(page.url()).pathname.split('/').pop() ?? ''
+
+    // Ana leaves while her order is pending; Bruno signs in on the same tab.
+    await page.goto('/')
+    await signOut(page, isMobileLayout)
+    await page.goto('/login')
+    await signIn(page, BRUNO.email)
+    await expect(page.getByText(`Você entrou como ${BRUNO.name}.`)).toBeVisible()
+    await waitForSocket(page)
+
+    // Positive control first: Bruno's connection is identified and gets public events.
+    await updateNft(page, EMERALD_ID, { price: '1.30' })
+    await expect
+      .poll(
+        async () =>
+          (await deliveries(page)).findLast(
+            (record) => record.type === 'nft.updated' && record.resourceId === EMERALD_ID,
+          )?.recipients,
+      )
+      .toEqual(['user-bruno'])
+
+    // Ana's order settles now; its event targets only Ana and reaches nobody here.
+    await settleOrders(page)
+    await expect
+      .poll(async () =>
+        (await deliveries(page)).find(
+          (record) => record.type === 'order.updated' && record.resourceId === orderId,
+        ),
+      )
+      .toMatchObject({ targetUserId: 'user-ana', recipients: [] })
   })
 })

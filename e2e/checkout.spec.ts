@@ -1,5 +1,13 @@
 import { EMERALD, fillCheckout, openCheckout, openReview, ordersCount } from './support/checkout'
-import { ANA, expect, expireSessions, setScenario, signIn, test } from './support/fixtures'
+import {
+  ANA,
+  expect,
+  expireSessions,
+  setScenario,
+  settleOrders,
+  signIn,
+  test,
+} from './support/fixtures'
 
 const receiptTitle = 'Seus NFTs agora estão na sua carteira'
 
@@ -26,7 +34,9 @@ test.describe('Pagamento', () => {
     await expect(
       page.getByRole('heading', { name: 'Aguardando confirmação da rede' }),
     ).toBeVisible()
-    await expect(page.getByRole('heading', { name: receiptTitle })).toBeVisible({ timeout: 10_000 })
+    // The simulated network settles the order now instead of after 3 s (via `order.updated`).
+    await settleOrders(page)
+    await expect(page.getByRole('heading', { name: receiptTitle })).toBeVisible()
     await expect(page.getByRole('table', { name: 'NFTs comprados' })).toContainText(
       'Emerald Ape #042',
     )
@@ -73,9 +83,9 @@ test.describe('Pagamento', () => {
     const review = await openReview(page)
     await review.getByRole('button', { name: 'Confirmar pagamento' }).click()
 
-    await expect(page.getByRole('heading', { name: 'Pagamento recusado' })).toBeVisible({
-      timeout: 10_000,
-    })
+    await expect(page).toHaveURL(/\/pedidos\/ord-/)
+    await settleOrders(page)
+    await expect(page.getByRole('heading', { name: 'Pagamento recusado' })).toBeVisible()
     await expect(page.getByRole('heading', { name: receiptTitle })).toBeHidden()
     await page.getByRole('link', { name: 'Ver carrinho' }).click()
     await expect(page.getByRole('link', { name: 'Emerald Ape #042' }).first()).toBeVisible()
@@ -93,7 +103,9 @@ test.describe('Pagamento', () => {
     await expect(page).toHaveURL(/\/pagamento/)
 
     await review.getByRole('button', { name: 'Confirmar com os novos valores' }).click()
-    await expect(page.getByRole('heading', { name: receiptTitle })).toBeVisible({ timeout: 10_000 })
+    await expect(page).toHaveURL(/\/pedidos\/ord-/)
+    await settleOrders(page)
+    await expect(page.getByRole('heading', { name: receiptTitle })).toBeVisible()
     await expect(page.getByText('1.24 ETH').first()).toBeVisible()
   })
 

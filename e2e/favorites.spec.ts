@@ -92,4 +92,53 @@ test.describe('Favoritos', () => {
     await openEmeraldAs(page, BRUNO.email)
     await expect(detailHeart(page)).toHaveAttribute('aria-pressed', 'false')
   })
+
+  test('a lista de interesse mostra, remove e mantém após recarregar', async ({
+    page,
+    isMobileLayout,
+  }) => {
+    await openEmeraldAs(page, ANA.email)
+    await toggleAndSave(page)
+    await page.goto('/nft/sage-nomad-009')
+    const sageHeart = page
+      .getByRole('button', { name: 'Favoritar Sage Nomad #009' })
+      .filter({ visible: true })
+    const saved = page.waitForResponse(
+      (response) => response.url().includes('/api/favorites/') && response.ok(),
+    )
+    await sageHeart.click()
+    await saved
+
+    // Phones reach the list from the bottom bar; wide screens from the profile menu.
+    if (isMobileLayout) {
+      await page.goto('/')
+      await page.getByRole('link', { name: 'Favoritos', exact: true }).click()
+    } else {
+      await page.goto('/perfil')
+      await page.getByRole('link', { name: 'Lista de interesse' }).click()
+    }
+    await expect(page).toHaveURL(/\/perfil\/favoritos$/)
+
+    const list = page.getByRole('list', { name: 'NFTs favoritos' })
+    await expect(list.getByRole('heading', { level: 3 })).toHaveText([
+      'Sage Nomad #009',
+      'Emerald Ape #042',
+    ])
+    await expect(page.getByText('2 NFTs salvos')).toBeVisible()
+
+    const removed = page.waitForResponse(
+      (response) => response.url().includes('/api/favorites/') && response.ok(),
+    )
+    await page.getByRole('button', { name: 'Remover Sage Nomad #009 dos favoritos' }).click()
+    await expect(list.getByRole('heading', { level: 3 })).toHaveText(['Emerald Ape #042'])
+    await removed
+
+    await page.reload()
+    await expect(
+      page.getByRole('list', { name: 'NFTs favoritos' }).getByRole('heading', { level: 3 }),
+    ).toHaveText(['Emerald Ape #042'])
+
+    await page.getByRole('button', { name: 'Remover Emerald Ape #042 dos favoritos' }).click()
+    await expect(page.getByText('Você ainda não favoritou nenhum NFT.')).toBeVisible()
+  })
 })

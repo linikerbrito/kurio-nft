@@ -10,6 +10,12 @@ interface RealtimeControls {
   emitStale: (nftId: string, price: string) => void
   disconnect: (durationMs?: number) => void
   connectionCount: () => number
+  deliveries: () => {
+    type: 'nft.updated' | 'order.updated'
+    resourceId: string
+    targetUserId: string | null
+    recipients: (string | null)[]
+  }[]
 }
 
 /**
@@ -69,4 +75,8 @@ export function dropConnections(page: Page, durationMs: number) {
 
 export function socketCount(page: Page) {
   return control(page, 'connectionCount')
+}
+
+export function deliveries(page: Page) {
+  return control(page, 'deliveries')
 }
