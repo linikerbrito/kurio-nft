@@ -12,7 +12,9 @@ export default defineConfig({
   testDir: './e2e',
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 1 : 0,
+  // One retry everywhere: a rare service-worker failure under heavy parallel load (documented in
+  // ARCHITECTURE.md) shows up as "flaky" in the report, with the trace of the failed attempt.
+  retries: 1,
   reporter: [['list'], ['html', { open: 'never' }]],
   /**
    * Visual baselines live next to the specs, one set per operating system (font rendering

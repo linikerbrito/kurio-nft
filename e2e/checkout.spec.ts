@@ -6,7 +6,7 @@ const receiptTitle = 'Seus NFTs agora estão na sua carteira'
 test.describe('Pagamento', () => {
   test('compra completa, do catálogo ao recibo confirmado', async ({ page, isMobileLayout }) => {
     await page.goto('/')
-    await page.getByRole('link', { name: 'Emerald Ape #042' }).first().click()
+    await page.getByRole('link', { name: 'Emerald Ape #042', exact: true }).first().click()
     await expect(page).toHaveURL(new RegExp(`${EMERALD}$`))
     await page.getByRole('button', { name: /^(COMPRAR|Comprar NFT)$/ }).click()
     await page.getByRole('link', { name: 'Conectar e finalizar' }).filter({ visible: true }).click()
