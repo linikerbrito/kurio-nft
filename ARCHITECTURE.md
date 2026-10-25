@@ -60,7 +60,7 @@ No cliente, `ApiError` ainda distingue `timeout`, `network` (sem resposta) e `co
 | NFTs      | `GET /nfts`                           | Busca, filtros, ordenação e paginação pelos parâmetros da URL; `{items, page, pageSize, total, totalPages, facets}`.                                                                                                            |
 |           | `GET /nfts/featured`                  | `{slides, spotlight}`.                                                                                                                                                                                                          |
 |           | `GET /nfts/:id`                       | Detalhe com galeria, edições (`available` por edição) e `version`; 404 inexistente.                                                                                                                                             |
-| Favoritos | `GET /favorites`                      | `{nftIds}`, mais recente primeiro (exige sessão).                                                                                                                                                                               |
+| Favoritos | `GET /favorites`                      | `{nftIds, items}`: ids e resumos atuais dos NFTs salvos, mais recente primeiro (exige sessão).                                                                                                                                  |
 |           | `PUT/DELETE /favorites/:nftId`        | Idempotentes; devolvem a lista.                                                                                                                                                                                                 |
 | Carrinho  | `GET /cart`                           | `{id, items[], coupon, summary{itemCount, subtotal, discount, networkFee, total}}`; cada item traz `issue` (`insufficient_stock`/`sold_out`).                                                                                   |
 |           | `POST /cart/items`                    | `{nftId, editionId, quantity}`; 409 acima do estoque.                                                                                                                                                                           |
@@ -105,7 +105,7 @@ Limitações do transporte simulado:
 - o `engine.io-client` captura `globalThis.WebSocket` ao carregar, então o `socket.io-client` é importado sob demanda, depois que o MSW está ativo (de quebra, fica fora do bundle inicial);
 - uma conexão recusada pelo servidor simulado fecha sem evento de erro; por isso o cliente usa `timeout: 3000` para tentar de novo em 3 s.
 
-Controles do lado do servidor, para demonstração e testes, ficam em `window.kurioMocks.realtime`: `updateNft`, `replayLast`, `emitStale`, `disconnect`, `connectionCount`.
+Controles do lado do servidor, para demonstração e testes, ficam em `window.kurioMocks.realtime`: `updateNft`, `replayLast`, `emitStale`, `disconnect`, `connectionCount` e `deliveries` (eventos enviados e quem os recebeu). `window.kurioMocks.settleOrders()` assenta os pedidos pendentes na hora, para os testes controlarem o momento do `order.updated` em vez de esperar 3 s.
 
 ## Sessão
 
@@ -118,7 +118,7 @@ Controles do lado do servidor, para demonstração e testes, ficam em `window.ku
   - Fora dela, mostra um aviso.
   - A marca de expiração fica no `sessionStorage`, para o aviso aparecer mesmo após recarregar.
 - **Contexto preservado:** o rascunho do pagamento fica no `sessionStorage` por usuário e é recuperado ao entrar de novo.
-- **Rotas privadas:** `/pagamento`, `/pedidos/:id`, `/perfil` e `/perfil/carteiras` são verificadas no `beforeLoad`.
+- **Rotas privadas:** `/pagamento`, `/pedidos/:id`, `/perfil`, `/perfil/carteiras` e `/perfil/favoritos` são verificadas no `beforeLoad`.
 - **Logout e troca de usuário:**
   - removem do cache sessão, carrinho, favoritos, carteiras, pedidos e perfil;
   - apagam os rascunhos de pagamento;
@@ -219,6 +219,7 @@ O próximo passo seria renderizar o shell no servidor (SSR/prerender), fora da s
   - Os testes observam a interface e os resultados das operações.
   - O REST passa pelos handlers MSW; os eventos passam pelo `socket.io-client`, disparados pelos controles do servidor simulado.
   - Cenários e estado começam limpos a cada teste.
+- **Tablet (768):** projeto `tablet` com regressão visual própria e o spec de layout, que verifica overflow horizontal em todas as telas nos três tamanhos.
 - **Regressão visual** (`e2e/visual.spec.ts`): Início, Detalhe, Carrinho, Login e Pagamento.
   - **Estabilidade:** relógio congelado, imagens e fontes carregadas, animações desligadas e toasts mascarados.
   - **Recorte:** desktop captura a página inteira; mobile e diálogos capturam a tela.
@@ -229,7 +230,8 @@ O próximo passo seria renderizar o shell no servidor (SSR/prerender), fora da s
 - **Login e cadastro:** diálogo sobre a Início em telas largas, página inteira no mobile. Google e Facebook aparecem, mas avisam que estão indisponíveis.
 - **Pagamento no mobile:** em duas etapas, primeiro os dados do colecionador e depois a carteira (frame "Pagamento com carteira"). A revisão antes do envio é um diálogo (não existe no Figma).
 - **Recibo:** fica em `/pedidos/:id`, no estilo do modal do Figma, e funciona por acesso direto e no mobile. Pedidos pendentes e recusados têm estados próprios.
-- **Perfil e carteiras no mobile (sem frame):** o menu lateral vira uma faixa horizontal. Itens fora do escopo (Atividade, Lista de interesse, Ofertas, Arquivos baixados, Suporte) avisam que estão indisponíveis.
+- **Perfil e carteiras no mobile (sem frame):** o menu lateral vira uma faixa horizontal que rola até a seção atual. Itens fora do escopo (Atividade, Ofertas, Arquivos baixados, Suporte) avisam que estão indisponíveis.
+- **Lista de interesse (sem frame):** `/perfil/favoritos`, no padrão das telas do perfil, com a grade de cards da Início e "Remover" (otimista, com rollback). Abre pelo coração da barra inferior, pelo menu do perfil e pelo rodapé. Preço e estoque dos itens acompanham o `nft.updated`.
 - **Carrinho:**
   - a tabela do desktop é um grid com papéis ARIA de tabela e mostra a edição de cada linha;
   - no mobile, a lixeira fica no canto do card (no Figma ela sobrepõe o "+").

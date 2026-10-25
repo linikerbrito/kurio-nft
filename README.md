@@ -103,10 +103,12 @@ Todos os controles ficam no objeto `kurioMocks` do console (só existe com mocks
 | Clique repetido                            | Duplo clique em "Confirmar pagamento" (gera um só pedido).                                                                                                                                        |
 | Eventos duplicados ou antigos              | `kurioMocks.realtime.replayLast()` e `kurioMocks.realtime.emitStale('emerald-ape-042', '0.10')`.                                                                                                  |
 | Queda da conexão em tempo real             | `kurioMocks.realtime.disconnect(5000)` (derruba e recusa conexões por 5 s); com um pedido pendente, ele é reconciliado ao reconectar.                                                             |
+| Pedido pendente assentado na hora          | `kurioMocks.settleOrders()` confirma (ou recusa, no cenário `payment-rejected`) os pedidos pendentes sem esperar os 3 s, emitindo `order.updated`.                                                |
+| Para quem foi cada evento                  | `kurioMocks.realtime.deliveries()` lista os eventos enviados e os usuários que os receberam.                                                                                                      |
 
 ## Testes
 
-`npm run test:e2e` gera o build de demo, sobe um preview na porta 4317 e roda os specs de `e2e/` no Chromium, nos projetos `desktop` (1440×900) e `mobile` (390×844). Cada teste começa com navegador e estado limpos. Eventos de tempo real são emitidos pelos controles do servidor simulado e chegam pelo `socket.io-client`.
+`npm run test:e2e` gera o build de demo, sobe um preview na porta 4317 e roda os specs de `e2e/` no Chromium, nos projetos `desktop` (1440×900) e `mobile` (390×844). O projeto `tablet` (768×1024) roda a regressão visual e a verificação de overflow horizontal de todas as telas. Cada teste começa com navegador e estado limpos. Eventos de tempo real são emitidos pelos controles do servidor simulado e chegam pelo `socket.io-client`.
 
 Cobertura:
 
@@ -119,6 +121,9 @@ Cobertura:
 - tempo real;
 - perfil e carteiras;
 - rede: sem conexão, tempo esgotado e respostas fora de ordem;
+- lista de interesse (favoritos): pela barra inferior e pelo menu do perfil, remoção e persistência;
+- isolamento de eventos: o `order.updated` de um pedido não chega a outro usuário que entra na mesma aba;
+- layout: nenhuma tela com overflow horizontal em 390, 768 e 1440;
 - teclado e foco: atalho para o conteúdo, navegação, validação pelo Enter, foco preso e devolvido em diálogos e na gaveta de filtros;
 - regressão visual.
 
