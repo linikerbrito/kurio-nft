@@ -100,7 +100,7 @@ export function MobileHero() {
                 onClick={() => setActiveIndex(index)}
                 aria-label={`Destaque ${index + 1} de ${slides.length}: ${slide.name}`}
                 aria-pressed={index === activeIndex}
-                className="group flex h-6 w-[0.8125rem] items-center justify-center"
+                className="group flex size-6 items-center justify-center"
               >
                 <span
                   aria-hidden="true"

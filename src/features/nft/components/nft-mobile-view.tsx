@@ -56,7 +56,7 @@ export function NftMobileView({ nft, purchase, activeImage, onImageChange }: Nft
                 aria-label={`Imagem ${index + 1} de ${nft.gallery.length}`}
                 aria-pressed={index === activeImage}
                 onClick={() => onImageChange(index)}
-                className="group flex h-6 w-[1.0625rem] items-center justify-center"
+                className="group flex size-6 items-center justify-center"
               >
                 <span
                   aria-hidden="true"

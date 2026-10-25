@@ -39,20 +39,20 @@ export function NftDescription({ nft }: { nft: Nft }) {
           ))}
         </div>
         <div>
-          <h3 className={labelClass}>Rede:</h3>
+          <h2 className={labelClass}>Rede:</h2>
           <p className={textClass}>
             Cunhado na {network} com procedência imutável e metadados armazenados no IPFS.
           </p>
         </div>
         <div>
-          <h3 className={labelClass}>Contrato:</h3>
+          <h2 className={labelClass}>Contrato:</h2>
           <p className={textClass}>
             {shortAddress(nft.contract.address)} • Contrato inteligente {nft.contract.standard}{' '}
             verificado.
           </p>
         </div>
         <div>
-          <h3 className={labelClass}>Direitos autorais:</h3>
+          <h2 className={labelClass}>Direitos autorais:</h2>
           <p className={textClass}>
             Direitos autorais do criador: {nft.royaltyPercent}% nas vendas secundárias, pagos
             automaticamente pelos mercados compatíveis.

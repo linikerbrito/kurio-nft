@@ -137,7 +137,8 @@ function NftDetailSkeleton() {
         <Skeleton className="-mx-6 h-[31.625rem] rounded-none" />
         <Skeleton className="-mx-6 -mt-[7.125rem] h-60 rounded-t-[31px] rounded-b-none" />
       </div>
-      <div className="hidden md:block">
+      {/* Reserves the height of the loaded page, so the footer does not jump when it arrives. */}
+      <div className="hidden md:block md:min-h-[93rem]">
         <Skeleton className="mt-8 h-4 w-36" />
         <div className="mt-3 flex gap-8">
           <div className="flex gap-7">
