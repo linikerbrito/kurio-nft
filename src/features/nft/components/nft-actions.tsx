@@ -1,30 +1,12 @@
 import type { ReactNode } from 'react'
-import { Link, useNavigate } from '@tanstack/react-router'
+import { useNavigate } from '@tanstack/react-router'
 import { toast } from 'sonner'
-import heartIcon from '@/assets/figma/detail/heart.svg'
 import linkedinIcon from '@/assets/figma/detail/share-linkedin.svg'
 import mailIcon from '@/assets/figma/detail/share-mail.svg'
 import twitterIcon from '@/assets/figma/detail/share-twitter.svg'
-import { useLoginRedirectSearch } from '@/features/auth/hooks/use-login-redirect-search'
 import { useAddToCart } from '@/features/cart/hooks/use-cart'
 import type { PurchaseState } from '@/features/nft/components/nft-purchase-panel'
 import { toApiError } from '@/lib/http'
-
-/** Favorites need an account: until the session exists, favoriting leads to login and back. */
-export function FavoriteLink({ nftName }: { nftName: string }) {
-  const search = useLoginRedirectSearch()
-  return (
-    <Link
-      to="/login"
-      search={search}
-      aria-label={`Favoritar ${nftName} (entre na sua conta para salvar)`}
-      className="inline-flex h-10 w-[8.125rem] items-center justify-center gap-2 rounded-[6px] border border-primary text-sm leading-5 font-medium text-fg-accent transition-colors hover:bg-primary/10"
-    >
-      <img src={heartIcon} alt="" width={20} height={20} className="size-5" />
-      Favoritar
-    </Link>
-  )
-}
 
 interface BuyButtonProps {
   nftId: string

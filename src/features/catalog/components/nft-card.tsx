@@ -1,7 +1,6 @@
 import { Link } from '@tanstack/react-router'
-import heartButton from '@/assets/figma/mobile/m-heart-button.svg'
-import { useLoginRedirectSearch } from '@/features/auth/hooks/use-login-redirect-search'
 import type { NftSummary } from '@/features/catalog/types/catalog'
+import { FavoriteButton } from '@/features/favorites/components/favorite-button'
 import { formatEth } from '@/lib/eth'
 import { Skeleton } from '@/shared/ui/skeleton'
 
@@ -19,7 +18,6 @@ interface NftCardProps {
  */
 export function NftCard({ nft, eager = false, size = 'default' }: NftCardProps) {
   const compact = size === 'compact'
-  const loginSearch = useLoginRedirectSearch()
 
   return (
     <article className="group relative rounded-[20px] outline-offset-4 has-[a:focus-visible]:outline-2 has-[a:focus-visible]:outline-primary md:rounded-sm">
@@ -34,14 +32,7 @@ export function NftCard({ nft, eager = false, size = 'default' }: NftCardProps) 
             decoding="async"
             className="size-full rounded-2xl object-cover transition-transform duration-300 group-hover:scale-[1.02] md:aspect-square md:rounded-[0.9375rem]"
           />
-          <Link
-            to="/login"
-            search={loginSearch}
-            aria-label={`Favoritar ${nft.name} (entre na sua conta para salvar)`}
-            className="absolute top-2 right-2 z-10 rounded-full md:hidden"
-          >
-            <img src={heartButton} alt="" width={28} height={28} className="size-7" />
-          </Link>
+          <FavoriteButton nftId={nft.id} nftName={nft.name} variant="card" />
         </div>
         {nft.rarity === 'rare' && (
           <span className="absolute top-4 left-0 flex h-8 w-[4.25rem] items-center pl-2 text-[0.8125rem] leading-4 font-medium text-primary-fg md:hidden">

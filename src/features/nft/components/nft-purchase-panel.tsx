@@ -1,5 +1,6 @@
 import type { Nft, NftEdition } from '@/features/catalog/types/catalog'
-import { BuyButton, FavoriteLink, ShareLinks } from '@/features/nft/components/nft-actions'
+import { FavoriteButton } from '@/features/favorites/components/favorite-button'
+import { BuyButton, ShareLinks } from '@/features/nft/components/nft-actions'
 import { EditionPicker } from '@/features/nft/components/edition-picker'
 import { QuantityStepper } from '@/features/nft/components/quantity-stepper'
 import { RatingStars } from '@/features/nft/components/rating-stars'
@@ -72,7 +73,7 @@ export function NftPurchasePanel({ nft, purchase }: { nft: Nft; purchase: Purcha
           >
             COMPRAR
           </BuyButton>
-          <FavoriteLink nftName={nft.name} />
+          <FavoriteButton nftId={nft.id} nftName={nft.name} variant="detail" />
         </div>
       </div>
 
