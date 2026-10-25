@@ -24,16 +24,19 @@ interface MockDb {
   carts: Record<string, MockCart>
   users: MockUser[]
   sessions: Record<string, MockSession>
+  /** NFT ids saved by each user id, newest first. */
+  favorites: Record<string, string[]>
 }
 
 /**
- * Carts, accounts and sessions survive reloads, as a real API would keep them;
+ * Carts, accounts, sessions and favorites survive reloads, as a real API would keep them;
  * the catalog always starts clean.
  */
 const STORAGE_KEYS = {
   carts: 'kurio:mock-carts',
   users: 'kurio:mock-users',
   sessions: 'kurio:mock-sessions',
+  favorites: 'kurio:mock-favorites',
 } as const
 
 function load<T>(key: string, fallback: T): T {
@@ -61,6 +64,7 @@ function createDb(restore: boolean): MockDb {
       ? load(STORAGE_KEYS.users, structuredClone([...userFixtures]))
       : structuredClone([...userFixtures]),
     sessions: restore ? load(STORAGE_KEYS.sessions, {}) : {},
+    favorites: restore ? load(STORAGE_KEYS.favorites, {}) : {},
   }
 }
 
@@ -77,6 +81,10 @@ export function persistCarts(): void {
 export function persistAccounts(): void {
   save(STORAGE_KEYS.users, db.users)
   save(STORAGE_KEYS.sessions, db.sessions)
+}
+
+export function persistFavorites(): void {
+  save(STORAGE_KEYS.favorites, db.favorites)
 }
 
 /** Restores the known initial state of every mocked resource. */

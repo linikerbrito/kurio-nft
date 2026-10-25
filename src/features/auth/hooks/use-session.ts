@@ -11,6 +11,7 @@ import { toast } from 'sonner'
 import { fetchSession, login, logout, register } from '@/features/auth/api/auth-api'
 import type { AuthResponse, RegisterInput, Session } from '@/features/auth/types/auth'
 import { cartKeys } from '@/features/cart/hooks/use-cart'
+import { favoriteKeys } from '@/features/favorites/api/favorites-api'
 import { ApiError } from '@/lib/http'
 import {
   clearSessionToken,
@@ -59,6 +60,7 @@ export function useSession() {
 export function clearPrivateData(queryClient: QueryClient): void {
   queryClient.setQueryData(sessionQueryOptions().queryKey, null)
   queryClient.removeQueries({ queryKey: cartKeys.all })
+  queryClient.removeQueries({ queryKey: favoriteKeys.all })
 }
 
 function useSignIn<TVariables>(request: (variables: TVariables) => Promise<AuthResponse>) {
