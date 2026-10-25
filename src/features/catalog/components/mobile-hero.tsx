@@ -4,6 +4,7 @@ import arrowIcon from '@/assets/figma/mobile/m-arrow-right.svg'
 import heroBackground from '@/assets/figma/mobile/m-hero-bg.svg'
 import { useFeaturedNfts } from '@/features/catalog/hooks/use-catalog'
 import { formatEth } from '@/lib/eth'
+import { useSwipe } from '@/shared/hooks/use-swipe'
 import { Skeleton } from '@/shared/ui/skeleton'
 
 /**
@@ -17,11 +18,18 @@ export function MobileHero() {
   const slides = data?.slides ?? []
   const activeSlide = slides[activeIndex] ?? slides[0]
   const nextSlide = slides.length > 1 ? slides[(activeIndex + 1) % slides.length] : undefined
+  // Swiping left shows the next highlight, right the previous one; the dots stay in sync.
+  const swipe = useSwipe((direction) => {
+    if (slides.length < 2) return
+    const step = direction === 'left' ? 1 : -1
+    setActiveIndex((index) => (index + step + slides.length) % slides.length)
+  })
 
   return (
     <section
       aria-labelledby="mobile-hero-title"
-      className="relative mt-4 flex min-h-[11.875rem] flex-col items-center justify-center overflow-hidden rounded-[12px] p-4 md:hidden"
+      className="relative mt-4 flex min-h-[11.875rem] touch-pan-y flex-col items-center justify-center overflow-hidden rounded-[12px] p-4 select-none md:hidden"
+      {...swipe}
     >
       <img
         src={heroBackground}
