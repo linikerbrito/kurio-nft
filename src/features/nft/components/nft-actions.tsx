@@ -1,11 +1,14 @@
 import type { ReactNode } from 'react'
-import { Link } from '@tanstack/react-router'
+import { Link, useNavigate } from '@tanstack/react-router'
+import { toast } from 'sonner'
 import heartIcon from '@/assets/figma/detail/heart.svg'
 import linkedinIcon from '@/assets/figma/detail/share-linkedin.svg'
 import mailIcon from '@/assets/figma/detail/share-mail.svg'
 import twitterIcon from '@/assets/figma/detail/share-twitter.svg'
 import { useLoginRedirectSearch } from '@/features/auth/hooks/use-login-redirect-search'
-import { UnavailableAction } from '@/shared/components/unavailable-action'
+import { useAddToCart } from '@/features/cart/hooks/use-cart'
+import type { PurchaseState } from '@/features/nft/components/nft-purchase-panel'
+import { toApiError } from '@/lib/http'
 
 /** Favorites need an account: until the session exists, favoriting leads to login and back. */
 export function FavoriteLink({ nftName }: { nftName: string }) {
@@ -24,16 +27,30 @@ export function FavoriteLink({ nftName }: { nftName: string }) {
 }
 
 interface BuyButtonProps {
-  soldOut: boolean
+  nftId: string
+  purchase: PurchaseState
+  /** `buy` adds and opens the cart; `add` adds and stays on the page. */
+  mode: 'buy' | 'add'
   className: string
   children: ReactNode
   /** Needed when the content is only an icon. */
   ariaLabel?: string
 }
 
-/** The cart arrives in the next phase; until then buying is announced as unavailable. */
-export function BuyButton({ soldOut, className, children, ariaLabel }: BuyButtonProps) {
-  if (soldOut) {
+/** Adds the chosen edition and quantity to the cart; the API checks the stock again. */
+export function BuyButton({
+  nftId,
+  purchase,
+  mode,
+  className,
+  children,
+  ariaLabel,
+}: BuyButtonProps) {
+  const addToCart = useAddToCart()
+  const navigate = useNavigate()
+  const { edition, quantity } = purchase
+
+  if (!edition) {
     return (
       <button
         type="button"
@@ -45,10 +62,37 @@ export function BuyButton({ soldOut, className, children, ariaLabel }: BuyButton
       </button>
     )
   }
+
+  function handleClick() {
+    if (!edition) return
+    addToCart.mutate(
+      { nftId, editionId: edition.id, quantity },
+      {
+        onSuccess: () => {
+          if (mode === 'buy') {
+            void navigate({ to: '/carrinho' })
+            return
+          }
+          toast.success('Adicionado ao carrinho.', {
+            action: { label: 'Ver carrinho', onClick: () => void navigate({ to: '/carrinho' }) },
+          })
+        },
+        onError: (error) => toast.error(toApiError(error).message),
+      },
+    )
+  }
+
   return (
-    <UnavailableAction variant="button" aria-label={ariaLabel} className={className}>
+    <button
+      type="button"
+      aria-label={ariaLabel}
+      aria-busy={addToCart.isPending}
+      disabled={addToCart.isPending}
+      onClick={handleClick}
+      className={`${className} disabled:opacity-70`}
+    >
       {children}
-    </UnavailableAction>
+    </button>
   )
 }
 

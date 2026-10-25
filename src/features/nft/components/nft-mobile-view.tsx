@@ -1,5 +1,4 @@
-import { Link, useCanGoBack, useRouter } from '@tanstack/react-router'
-import backIcon from '@/assets/figma/detail/m-back.svg'
+import { Link } from '@tanstack/react-router'
 import heartIcon from '@/assets/figma/detail/m-heart.svg'
 import shopIcon from '@/assets/figma/detail/m-shop.svg'
 import starIcon from '@/assets/figma/detail/m-star.svg'
@@ -11,10 +10,9 @@ import type { PurchaseState } from '@/features/nft/components/nft-purchase-panel
 import { TokenInfo } from '@/features/nft/components/nft-purchase-panel'
 import { QuantityStepper } from '@/features/nft/components/quantity-stepper'
 import { formatEth, multiplyEth } from '@/lib/eth'
+import { BackButton } from '@/shared/components/back-button'
+import { roundButtonBase } from '@/shared/components/round-button'
 
-/** Raised round button of the design; each use sets its own size. */
-const roundButtonBase =
-  'flex shrink-0 items-center justify-center rounded-full border border-line bg-surface-raised transition-colors hover:border-primary'
 const roundButtonClass = `${roundButtonBase} size-[2.1875rem]`
 
 interface NftMobileViewProps {
@@ -26,8 +24,6 @@ interface NftMobileViewProps {
 
 /** Phone layout of the detail: artwork hero, details sheet and the fixed buy bar. */
 export function NftMobileView({ nft, purchase, activeImage, onImageChange }: NftMobileViewProps) {
-  const router = useRouter()
-  const canGoBack = useCanGoBack()
   const loginSearch = useLoginRedirectSearch()
   const image = nft.gallery[activeImage] ?? nft.gallery[0]
   const soldOut = purchase.edition === undefined
@@ -39,14 +35,7 @@ export function NftMobileView({ nft, purchase, activeImage, onImageChange }: Nft
         className="relative -mx-6 h-[31.625rem] bg-linear-137 from-surface from-12% to-surface-raised"
       >
         <div className="absolute inset-x-7 top-[1.4375rem] flex justify-between">
-          <button
-            type="button"
-            aria-label="Voltar"
-            onClick={() => (canGoBack ? router.history.back() : router.navigate({ to: '/' }))}
-            className={roundButtonClass}
-          >
-            <img src={backIcon} alt="" className="h-[0.4583rem] w-[0.8229rem] rotate-90" />
-          </button>
+          <BackButton />
           <Link
             to="/login"
             search={loginSearch}
@@ -147,13 +136,17 @@ export function NftMobileView({ nft, purchase, activeImage, onImageChange }: Nft
         </div>
         <div className="flex items-center gap-3">
           <BuyButton
-            soldOut={soldOut}
+            nftId={nft.id}
+            purchase={purchase}
+            mode="buy"
             className="flex h-15 w-[12.25rem] items-center justify-center rounded-full bg-linear-100 from-primary from-4% to-primary/80 text-base leading-5 font-bold text-primary-fg"
           >
             Comprar NFT
           </BuyButton>
           <BuyButton
-            soldOut={soldOut}
+            nftId={nft.id}
+            purchase={purchase}
+            mode="add"
             ariaLabel="Adicionar ao carrinho"
             className={`${roundButtonBase} size-15`}
           >

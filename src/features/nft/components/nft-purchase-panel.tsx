@@ -65,7 +65,9 @@ export function NftPurchasePanel({ nft, purchase }: { nft: Nft; purchase: Purcha
         />
         <div className="flex gap-2">
           <BuyButton
-            soldOut={soldOut}
+            nftId={nft.id}
+            purchase={purchase}
+            mode="buy"
             className="inline-flex h-10 w-[8.125rem] items-center justify-center rounded-[6px] bg-primary text-sm leading-5 font-bold text-primary-fg transition-colors hover:bg-primary/90"
           >
             COMPRAR
