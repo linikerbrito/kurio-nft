@@ -10,6 +10,7 @@ import {
   type MockOrder,
 } from '@/mocks/db'
 import { toCart } from '@/mocks/pricing'
+import { emitNftUpdated, emitOrderUpdated, touchNft } from '@/mocks/realtime'
 import { randomToken, userCartId } from '@/mocks/session'
 
 /** Time a payment stays pending before the simulated network settles it. */
@@ -104,10 +105,13 @@ function applyPurchase(order: MockOrder): void {
   const { nfts } = getDb()
   const cart = userCart(order.userId)
   for (const item of order.items) {
-    const edition = nfts
-      .find((nft) => nft.id === item.nftId)
-      ?.editions.find((candidate) => candidate.id === item.editionId)
-    if (edition) edition.available = Math.max(0, edition.available - item.quantity)
+    const nft = nfts.find((candidate) => candidate.id === item.nftId)
+    const edition = nft?.editions.find((candidate) => candidate.id === item.editionId)
+    if (nft && edition) {
+      edition.available = Math.max(0, edition.available - item.quantity)
+      touchNft(nft)
+      emitNftUpdated(nft)
+    }
 
     const line = cart.lines.find((candidate) => candidate.editionId === item.editionId)
     if (line) line.quantity -= item.quantity
@@ -131,6 +135,7 @@ export function settleDueOrders(now = Date.now()): void {
     } else {
       order.failureReason = 'Pagamento recusado pela carteira: saldo insuficiente na rede.'
     }
+    emitOrderUpdated(order.userId, toOrder(order))
     changed = true
   }
   if (changed) persistOrders()
@@ -167,5 +172,8 @@ export function toOrder(order: MockOrder): Order {
 export function raiseFirstPrice(cart: MockCart): void {
   const nftId = cart.lines[0]?.nftId
   const nft = getDb().nfts.find((item) => item.id === nftId)
-  if (nft) nft.price = new Decimal(nft.price).plus('0.05').toFixed(2)
+  if (!nft) return
+  nft.price = new Decimal(nft.price).plus('0.05').toFixed(2)
+  touchNft(nft)
+  emitNftUpdated(nft)
 }

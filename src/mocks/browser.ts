@@ -1,6 +1,7 @@
 import { setupWorker } from 'msw/browser'
 import { expireSessions, resetDb } from '@/mocks/db'
 import { handlers } from '@/mocks/handlers'
+import { realtimeControls } from '@/mocks/realtime'
 import { mockScenarios, resetLatency, setMockScenario, type MockScenario } from '@/mocks/scenario'
 
 export const worker = setupWorker(...handlers)
@@ -11,6 +12,8 @@ interface MockControls {
   reset: () => void
   /** Expires every open session, to exercise the expiration flows. */
   expireSessions: () => void
+  /** Server side of the Socket.IO simulation: emits events, replays and drops connections. */
+  realtime: typeof realtimeControls
 }
 
 declare global {
@@ -29,6 +32,7 @@ function installControls(): void {
       resetLatency()
     },
     expireSessions,
+    realtime: realtimeControls,
   }
 }
 

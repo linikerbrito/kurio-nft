@@ -125,6 +125,9 @@ function applySales(nfts: MockNft[], orders: MockOrder[]): MockNft[] {
       if (edition) edition.available = Math.max(0, edition.available - item.quantity)
     }
   }
+  for (const nft of nfts) {
+    nft.available = nft.editions.reduce((total, edition) => total + edition.available, 0)
+  }
   return nfts
 }
 
