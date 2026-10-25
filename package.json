@@ -13,6 +13,8 @@
     "format": "prettier --write .",
     "build:demo": "tsc -b && vite build --mode mocks",
     "test:e2e": "playwright test",
+    "test:visual": "playwright test e2e/visual.spec.ts",
+    "test:visual:update": "playwright test e2e/visual.spec.ts --update-snapshots",
     "test:e2e:report": "playwright show-report"
   },
   "dependencies": {

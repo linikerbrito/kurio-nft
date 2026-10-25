@@ -14,6 +14,21 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
   reporter: [['list'], ['html', { open: 'never' }]],
+  /**
+   * Visual baselines live next to the specs, one set per operating system (font rendering
+   * differs). A system without its set records it on the first run instead of failing.
+   */
+  updateSnapshots: 'missing',
+  expect: {
+    // Room for the whole suite running in parallel on a laptop; real failures still fail.
+    timeout: 10_000,
+    toHaveScreenshot: {
+      animations: 'disabled',
+      caret: 'hide',
+      scale: 'css',
+      maxDiffPixelRatio: 0.002,
+    },
+  },
   use: {
     baseURL,
     locale: 'pt-BR',
