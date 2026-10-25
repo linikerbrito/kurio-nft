@@ -1,6 +1,14 @@
 import { test as base, expect, type Locator, type Page } from '@playwright/test'
 
-export type MockScenario = 'default' | 'slow' | 'empty' | 'error'
+export type MockScenario =
+  | 'default'
+  | 'slow'
+  | 'empty'
+  | 'error'
+  | 'wallet-rejected'
+  | 'price-changed'
+  | 'order-timeout'
+  | 'payment-rejected'
 
 interface Fixtures {
   /** Mock scenario stored before the app boots; override with `test.use({ scenario })`. */
