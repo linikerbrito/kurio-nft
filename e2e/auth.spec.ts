@@ -22,7 +22,7 @@ test.describe('Sessão', () => {
     await signIn(page, ANA.email)
 
     await expect(page).toHaveURL(/\/perfil$/)
-    await expect(page.getByText(ANA.email)).toBeVisible()
+    await expect(page.getByLabel('E-mail', { exact: true })).toHaveValue(ANA.email)
   })
 
   test('valida os campos e recusa senha incorreta', async ({ page }) => {
@@ -81,18 +81,20 @@ test.describe('Sessão', () => {
   test('a sessão sobrevive ao recarregar a página', async ({ page }) => {
     await page.goto('/login?redirect=/perfil')
     await signIn(page, ANA.email)
-    await expect(page.getByText(ANA.email)).toBeVisible()
+    await expect(page).toHaveURL(/^[^?]*\/perfil$/)
+    await expect(page.getByLabel('E-mail', { exact: true })).toHaveValue(ANA.email)
 
     await page.reload()
 
     await expect(page).toHaveURL(/\/perfil$/)
-    await expect(page.getByText(ANA.name)).toBeVisible()
+    await expect(page.getByLabel('Nome de exibição', { exact: true })).toHaveValue(ANA.name)
   })
 
   test('sessão expirada volta ao login com aviso e retoma a rota', async ({ page }) => {
     await page.goto('/login?redirect=/perfil')
     await signIn(page, ANA.email)
-    await expect(page.getByText(ANA.email)).toBeVisible()
+    await expect(page).toHaveURL(/^[^?]*\/perfil$/)
+    await expect(page.getByLabel('E-mail', { exact: true })).toHaveValue(ANA.email)
 
     await expireSessions(page)
     await page.reload()

@@ -94,11 +94,11 @@ export async function signIn(page: Page, email: string, password = DEMO_PASSWORD
   await page.getByRole('button', { name: 'Entrar', exact: true }).filter({ visible: true }).click()
 }
 
-/** Signs out through the header menu (desktop) or the profile screen (phones). */
+/** Signs out through the header menu (desktop) or the profile menu (phones). */
 export async function signOut(page: Page, isMobileLayout: boolean): Promise<void> {
   if (isMobileLayout) {
     await page.goto('/perfil')
-    await page.getByRole('button', { name: 'Sair da conta' }).click()
+    await page.getByRole('button', { name: 'Sair', exact: true }).click()
   } else {
     await page.getByRole('button', { name: /^Conta de / }).click()
     await page.getByRole('menuitem', { name: 'Sair' }).click()
