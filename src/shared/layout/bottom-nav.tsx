@@ -40,6 +40,9 @@ export function BottomNav() {
       aria-label="Principal"
       className="pointer-events-none fixed inset-x-0 bottom-0 z-40 h-[7.875rem] md:hidden"
     >
+      {/* Safari on iPhone draws the page behind its floating toolbar, below this bar's bottom
+          edge: the bar's color continues down so content does not show under it. */}
+      <div aria-hidden="true" className="absolute inset-x-0 top-full h-lvh bg-surface" />
       <div className="absolute inset-x-0 top-[24.6%] bottom-0">
         <img
           src={barShape}
