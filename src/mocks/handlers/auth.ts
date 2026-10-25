@@ -5,7 +5,7 @@ import { CART_ID_HEADER } from '@/lib/http'
 import { API_BASE } from '@/mocks/config'
 import { getDb, persistAccounts } from '@/mocks/db'
 import type { MockUser } from '@/mocks/fixtures/users'
-import { errorResponse, transientFailure } from '@/mocks/responses'
+import { errorResponse, readJson, transientFailure } from '@/mocks/responses'
 import { getMockScenario, simulateLatency } from '@/mocks/scenario'
 import {
   authenticate,
@@ -22,14 +22,6 @@ const registerSchema = z.object({
   email: z.email().trim(),
   password: z.string().min(8),
 })
-
-async function readJson(request: Request): Promise<unknown> {
-  try {
-    return await request.json()
-  } catch {
-    return null
-  }
-}
 
 /** Opens a session and brings the visitor's cart into the account. */
 function startSession(request: Request, user: MockUser): AuthResponse {

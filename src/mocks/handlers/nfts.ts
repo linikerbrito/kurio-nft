@@ -18,6 +18,7 @@ import {
 import { getDb } from '@/mocks/db'
 import { categoryLabels, featuredFixture, networkLabels, type MockNft } from '@/mocks/fixtures/nfts'
 import { errorResponse, transientFailure } from '@/mocks/responses'
+import { settleDueOrders } from '@/mocks/orders'
 import { getMockScenario, simulateLatency } from '@/mocks/scenario'
 import { API_BASE } from '@/mocks/config'
 
@@ -143,6 +144,7 @@ function validationFailure(error: z.ZodError) {
 export const nftHandlers = [
   http.get(`${API_BASE}/nfts`, async ({ request }) => {
     await simulateLatency()
+    settleDueOrders()
     const scenario = getMockScenario()
     if (scenario === 'error') return transientFailure()
 
@@ -183,6 +185,7 @@ export const nftHandlers = [
 
   http.get(`${API_BASE}/nfts/featured`, async () => {
     await simulateLatency()
+    settleDueOrders()
     if (getMockScenario() === 'error') return transientFailure()
 
     const { nfts } = getDb()
@@ -202,6 +205,7 @@ export const nftHandlers = [
 
   http.get<{ id: string }>(`${API_BASE}/nfts/:id`, async ({ params }) => {
     await simulateLatency()
+    settleDueOrders()
     if (getMockScenario() === 'error') return transientFailure()
 
     const nft = getDb().nfts.find((item) => item.id === params.id)

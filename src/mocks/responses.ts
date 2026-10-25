@@ -24,3 +24,12 @@ export function errorResponse(
 export function transientFailure() {
   return errorResponse('transient', 'Serviço temporariamente indisponível. Tente novamente.')
 }
+
+/** Request body as JSON, or `null` when it is missing or malformed. */
+export async function readJson(request: Request): Promise<unknown> {
+  try {
+    return await request.json()
+  } catch {
+    return null
+  }
+}

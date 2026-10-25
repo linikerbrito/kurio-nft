@@ -11,7 +11,10 @@ import { toast } from 'sonner'
 import { fetchSession, login, logout, register } from '@/features/auth/api/auth-api'
 import type { AuthResponse, RegisterInput, Session } from '@/features/auth/types/auth'
 import { cartKeys } from '@/features/cart/hooks/use-cart'
+import { clearCheckoutStorage } from '@/features/checkout/hooks/use-checkout'
 import { favoriteKeys } from '@/features/favorites/api/favorites-api'
+import { orderKeys } from '@/features/orders/api/orders-api'
+import { walletKeys } from '@/features/wallets/api/wallets-api'
 import { ApiError } from '@/lib/http'
 import {
   clearSessionToken,
@@ -61,6 +64,8 @@ export function clearPrivateData(queryClient: QueryClient): void {
   queryClient.setQueryData(sessionQueryOptions().queryKey, null)
   queryClient.removeQueries({ queryKey: cartKeys.all })
   queryClient.removeQueries({ queryKey: favoriteKeys.all })
+  queryClient.removeQueries({ queryKey: walletKeys.all })
+  queryClient.removeQueries({ queryKey: orderKeys.all })
 }
 
 function useSignIn<TVariables>(request: (variables: TVariables) => Promise<AuthResponse>) {
@@ -69,7 +74,10 @@ function useSignIn<TVariables>(request: (variables: TVariables) => Promise<AuthR
     mutationFn: request,
     onSuccess: async ({ token, user, expiresAt }) => {
       const previousUser = queryClient.getQueryData(sessionQueryOptions().queryKey)?.user
-      if (previousUser && previousUser.id !== user.id) clearPrivateData(queryClient)
+      if (previousUser && previousUser.id !== user.id) {
+        clearPrivateData(queryClient)
+        clearCheckoutStorage()
+      }
       setSessionToken(token)
       const session: Session = { user, expiresAt }
       queryClient.setQueryData(sessionQueryOptions().queryKey, session)
@@ -106,6 +114,9 @@ export function useLogout() {
       clearSessionToken()
       rotateVisitorCartId()
       clearPrivateData(queryClient)
+      // An expired session keeps the checkout draft for when the user signs back in; a logout
+      // does not.
+      clearCheckoutStorage()
       toast.success('Você saiu da sua conta.')
       if (isProtectedPath(pathname)) void navigate({ to: '/' })
     },

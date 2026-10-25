@@ -1,6 +1,21 @@
 import { delay } from 'msw'
 
-export const mockScenarios = ['default', 'slow', 'empty', 'error'] as const
+/**
+ * `default` success, `slow` long latency, `empty` empty catalog, `error` transient failures.
+ * Checkout: `wallet-rejected` (the wallet refuses to connect), `price-changed` (a price goes
+ * up while the order is sent), `order-timeout` (the order is created but the answer arrives
+ * after the client gave up) and `payment-rejected` (the payment is refused).
+ */
+export const mockScenarios = [
+  'default',
+  'slow',
+  'empty',
+  'error',
+  'wallet-rejected',
+  'price-changed',
+  'order-timeout',
+  'payment-rejected',
+] as const
 export type MockScenario = (typeof mockScenarios)[number]
 
 const STORAGE_KEY = 'kurio:mock-scenario'

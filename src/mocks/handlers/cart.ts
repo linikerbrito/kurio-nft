@@ -1,28 +1,13 @@
-import Decimal from 'decimal.js'
 import { http, HttpResponse } from 'msw'
 import { z } from 'zod'
-import type { Cart, CartItem } from '@/features/cart/types/cart'
 import { CART_ID_HEADER } from '@/lib/http'
 import { API_BASE } from '@/mocks/config'
 import { getDb, persistCarts, type MockCart } from '@/mocks/db'
-import { errorResponse, transientFailure } from '@/mocks/responses'
+import { errorResponse, readJson, transientFailure } from '@/mocks/responses'
+import { settleDueOrders } from '@/mocks/orders'
 import { getMockScenario, simulateLatency } from '@/mocks/scenario'
+import { coupons, findEdition, toCart } from '@/mocks/pricing'
 import { authenticate, userCartId } from '@/mocks/session'
-
-/** Base fee plus one share per distinct network in the cart ("Taxa estimada"). */
-const BASE_NETWORK_FEE = new Decimal('0.004')
-const FEE_PER_NETWORK = new Decimal('0.004')
-
-interface CouponRule {
-  description: string
-  percentOff: number
-  expired: boolean
-}
-
-const coupons: Record<string, CouponRule> = {
-  KURIO10: { description: 'Desconto do lançamento (10%)', percentOff: 10, expired: false },
-  EXPIRADO: { description: 'Cupom de pré-venda', percentOff: 15, expired: true },
-}
 
 const addItemSchema = z.object({
   nftId: z.string().min(1),
@@ -44,12 +29,6 @@ function cartFor(request: Request): MockCart | 'unauthorized' | null {
   return carts[cartId]
 }
 
-function findEdition(nftId: string, editionId: string) {
-  const nft = getDb().nfts.find((item) => item.id === nftId)
-  const edition = nft?.editions.find((item) => item.id === editionId)
-  return nft && edition ? { nft, edition } : null
-}
-
 function stockConflict(available: number) {
   return errorResponse(
     'conflict',
@@ -57,60 +36,6 @@ function stockConflict(available: number) {
       ? 'Esta edição esgotou.'
       : `Só ${available === 1 ? 'resta 1 unidade' : `restam ${available} unidades`} desta edição.`,
   )
-}
-
-/** Builds the cart the client sees, priced with the current catalog. */
-function toCart(cart: MockCart): Cart {
-  const items: CartItem[] = []
-  for (const line of cart.lines) {
-    const found = findEdition(line.nftId, line.editionId)
-    if (!found) continue
-    const { nft, edition } = found
-    const unitPrice = new Decimal(nft.price)
-    items.push({
-      id: line.id,
-      nft: {
-        id: nft.id,
-        name: nft.name,
-        tokenId: nft.tokenId,
-        image: nft.image,
-        network: nft.network,
-      },
-      edition: { id: edition.id, label: edition.label, available: edition.available },
-      quantity: line.quantity,
-      unitPrice: unitPrice.toFixed(2),
-      lineTotal: unitPrice.times(line.quantity).toFixed(2),
-      issue:
-        edition.available === 0
-          ? 'sold_out'
-          : line.quantity > edition.available
-            ? 'insufficient_stock'
-            : null,
-    })
-  }
-
-  const subtotal = items.reduce((sum, item) => sum.plus(item.lineTotal), new Decimal(0))
-  const coupon = cart.couponCode ? coupons[cart.couponCode] : undefined
-  const discount = coupon
-    ? subtotal.times(coupon.percentOff).dividedBy(100).toDecimalPlaces(2, Decimal.ROUND_DOWN)
-    : new Decimal(0)
-  const networks = new Set(items.map((item) => item.nft.network)).size
-  const networkFee =
-    items.length === 0 ? new Decimal(0) : BASE_NETWORK_FEE.plus(FEE_PER_NETWORK.times(networks))
-
-  return {
-    id: cart.id,
-    items,
-    coupon:
-      coupon && cart.couponCode ? { code: cart.couponCode, description: coupon.description } : null,
-    summary: {
-      itemCount: items.reduce((sum, item) => sum + item.quantity, 0),
-      subtotal: subtotal.toFixed(2),
-      discount: discount.toFixed(2),
-      networkFee: networkFee.toFixed(3),
-      total: subtotal.minus(discount).plus(networkFee).toFixed(3),
-    },
-  }
 }
 
 function respond(cart: MockCart) {
@@ -121,6 +46,7 @@ function respond(cart: MockCart) {
 /** Shared guard: latency, error scenario and the cart header. */
 async function prepare(request: Request) {
   await simulateLatency()
+  settleDueOrders()
   if (getMockScenario() === 'error') return { failure: transientFailure() }
   const cart = cartFor(request)
   if (cart === 'unauthorized') {
@@ -128,14 +54,6 @@ async function prepare(request: Request) {
   }
   if (!cart) return { failure: errorResponse('validation', 'Carrinho não identificado.') }
   return { cart }
-}
-
-async function readJson(request: Request): Promise<unknown> {
-  try {
-    return await request.json()
-  } catch {
-    return null
-  }
 }
 
 export const cartHandlers = [
