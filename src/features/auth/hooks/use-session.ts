@@ -70,10 +70,18 @@ export function clearPrivateData(queryClient: QueryClient): void {
   queryClient.removeQueries({ queryKey: profileKeys.all })
 }
 
-function useSignIn<TVariables>(request: (variables: TVariables) => Promise<AuthResponse>) {
+function useSignIn<TVariables>(
+  request: (variables: TVariables) => Promise<AuthResponse>,
+  { retryOnConnectionLoss = false } = {},
+) {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: request,
+    retry: (failureCount, error) =>
+      retryOnConnectionLoss &&
+      failureCount < 1 &&
+      error instanceof ApiError &&
+      error.code === 'network',
     onSuccess: async ({ token, user, expiresAt }) => {
       const previousUser = queryClient.getQueryData(sessionQueryOptions().queryKey)?.user
       if (previousUser && previousUser.id !== user.id) {
@@ -89,9 +97,14 @@ function useSignIn<TVariables>(request: (variables: TVariables) => Promise<AuthR
   })
 }
 
+/**
+ * Signing in again is harmless, so a request lost on the way (no answer at all) is retried once
+ * before the user sees "Sem conexão". Sign-up is not: it would hit its own e-mail conflict.
+ */
 export function useLogin() {
-  return useSignIn(({ email, password }: { email: string; password: string }) =>
-    login(email, password),
+  return useSignIn(
+    ({ email, password }: { email: string; password: string }) => login(email, password),
+    { retryOnConnectionLoss: true },
   )
 }
 
