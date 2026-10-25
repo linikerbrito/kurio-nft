@@ -1,0 +1,17 @@
+{
+  "$comment": "Lighthouse audit of the optimized demo build (mocks on, default scenario). Run with `npm run audit:lighthouse`.",
+  "port": 4319,
+  "runs": 3,
+  "pages": [
+    { "name": "inicio", "path": "/" },
+    { "name": "detalhe", "path": "/nft/emerald-ape-042" }
+  ],
+  "formFactors": ["mobile", "desktop"],
+  "categories": ["performance", "accessibility", "best-practices", "seo"],
+  "targets": {
+    "performance": 90,
+    "accessibility": 95,
+    "best-practices": 95,
+    "seo": 90
+  }
+}

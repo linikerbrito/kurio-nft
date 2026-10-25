@@ -1,0 +1,251 @@
+{
+  "environment": {
+    "date": "2026-10-25T13:28:22.343Z",
+    "lighthouse": "13.5.0",
+    "browser": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+    "node": "v24.14.0",
+    "os": "Windows_NT 10.0.26200 (x64)",
+    "cpu": "13th Gen Intel(R) Core(TM) i5-1334U",
+    "memory": "8 GB",
+    "build": "npm run build:demo (vite build --mode mocks: minified, MSW on, scenario \"default\")",
+    "server": "scripts/lighthouse.mjs static server on http://localhost:4319 (brotli/gzip, SPA fallback, immutable assets)",
+    "throttling": "Lighthouse defaults: mobile = simulated Moto G Power, slow 4G; desktop = desktop preset (no CPU slowdown, fast network)",
+    "runsPerCase": 3
+  },
+  "targets": {
+    "performance": 90,
+    "accessibility": 95,
+    "best-practices": 95,
+    "seo": 90
+  },
+  "results": [
+    {
+      "page": "inicio",
+      "path": "/",
+      "formFactor": "mobile",
+      "scores": {
+        "performance": 77,
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 100
+      },
+      "metrics": {
+        "LCP": 4446.712999999999,
+        "CLS": 0.002641156718278637,
+        "TBT": 33.5
+      },
+      "runs": [
+        {
+          "scores": {
+            "performance": 70,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "LCP": 4789.419,
+            "CLS": 0.002641156718278637,
+            "TBT": 277.5
+          }
+        },
+        {
+          "scores": {
+            "performance": 77,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "LCP": 4446.712999999999,
+            "CLS": 0.002641156718278637,
+            "TBT": 33.5
+          }
+        },
+        {
+          "scores": {
+            "performance": 77,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "LCP": 4435.806,
+            "CLS": 0.002641156718278637,
+            "TBT": 32
+          }
+        }
+      ]
+    },
+    {
+      "page": "inicio",
+      "path": "/",
+      "formFactor": "desktop",
+      "scores": {
+        "performance": 98,
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 100
+      },
+      "metrics": {
+        "LCP": 1029.3674999999998,
+        "CLS": 0.0035643206957942978,
+        "TBT": 0
+      },
+      "runs": [
+        {
+          "scores": {
+            "performance": 98,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "LCP": 1045.384,
+            "CLS": 0.0035643206957942978,
+            "TBT": 0
+          }
+        },
+        {
+          "scores": {
+            "performance": 98,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "LCP": 1024.478,
+            "CLS": 0.0035643206957942978,
+            "TBT": 0
+          }
+        },
+        {
+          "scores": {
+            "performance": 98,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "LCP": 1029.3674999999998,
+            "CLS": 0.0035643206957942978,
+            "TBT": 0
+          }
+        }
+      ]
+    },
+    {
+      "page": "detalhe",
+      "path": "/nft/emerald-ape-042",
+      "formFactor": "mobile",
+      "scores": {
+        "performance": 75,
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 100
+      },
+      "metrics": {
+        "LCP": 4641.0160000000005,
+        "CLS": 0,
+        "TBT": 71.5
+      },
+      "runs": [
+        {
+          "scores": {
+            "performance": 74,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "LCP": 4641.0160000000005,
+            "CLS": 0,
+            "TBT": 139.0079999999989
+          }
+        },
+        {
+          "scores": {
+            "performance": 75,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "LCP": 4647.2325,
+            "CLS": 0,
+            "TBT": 71.5
+          }
+        },
+        {
+          "scores": {
+            "performance": 76,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "LCP": 4589.2635,
+            "CLS": 0,
+            "TBT": 24
+          }
+        }
+      ]
+    },
+    {
+      "page": "detalhe",
+      "path": "/nft/emerald-ape-042",
+      "formFactor": "desktop",
+      "scores": {
+        "performance": 98,
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 100
+      },
+      "metrics": {
+        "LCP": 1071.797,
+        "CLS": 0,
+        "TBT": 0
+      },
+      "runs": [
+        {
+          "scores": {
+            "performance": 98,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "LCP": 1052.2265000000002,
+            "CLS": 0,
+            "TBT": 0
+          }
+        },
+        {
+          "scores": {
+            "performance": 98,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "LCP": 1072.7019999999998,
+            "CLS": 0,
+            "TBT": 0
+          }
+        },
+        {
+          "scores": {
+            "performance": 98,
+            "accessibility": 100,
+            "best-practices": 100,
+            "seo": 100
+          },
+          "metrics": {
+            "LCP": 1071.797,
+            "CLS": 0,
+            "TBT": 0
+          }
+        }
+      ]
+    }
+  ]
+}

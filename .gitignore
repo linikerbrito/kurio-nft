@@ -30,3 +30,6 @@ docs/
 playwright-report/
 test-results/
 blob-report/
+
+# Lighthouse: every run stays local; the median reports and the summary are versioned
+lighthouse/reports/runs/
