@@ -7,6 +7,7 @@ import { HomePromos } from '@/features/catalog/components/home-promos'
 import { MintJournal } from '@/features/catalog/components/mint-journal'
 import { MobileCatalogBar } from '@/features/catalog/components/mobile-catalog-bar'
 import { MobileHero } from '@/features/catalog/components/mobile-hero'
+import { CATALOG_SECTION_ID } from '@/features/catalog/focus-catalog-results'
 import { useNftList } from '@/features/catalog/hooks/use-catalog'
 import { useCatalogSearch } from '@/features/catalog/hooks/use-catalog-search'
 
@@ -26,7 +27,7 @@ export function HomePage() {
       <HomeHero />
 
       <section
-        id="catalogo"
+        id={CATALOG_SECTION_ID}
         aria-labelledby="catalog-title"
         tabIndex={-1}
         className="mt-4 grid scroll-mt-6 gap-12 outline-none md:mt-24 lg:grid-cols-[310px_minmax(0,1fr)]"

@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react'
 import filterIcon from '@/assets/figma/mobile/m-filter.svg'
 import searchIcon from '@/assets/figma/mobile/m-search.svg'
 import { FiltersSheet } from '@/features/catalog/components/filters-sheet'
+import { focusCatalogResults } from '@/features/catalog/focus-catalog-results'
 import { useCatalogSearch } from '@/features/catalog/hooks/use-catalog-search'
 import type { CatalogFacets } from '@/features/catalog/types/catalog'
 
@@ -17,7 +18,7 @@ export function MobileCatalogBar({ facets, facetsUnavailable }: MobileCatalogBar
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    updateFilters({ q: term.trim() || undefined })
+    void updateFilters({ q: term.trim() || undefined }).then(focusCatalogResults)
   }
 
   return (

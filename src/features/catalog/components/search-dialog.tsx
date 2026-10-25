@@ -1,6 +1,7 @@
-import { useState, type FormEvent } from 'react'
+import { useRef, useState, type FormEvent } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import searchIcon from '@/assets/figma/search.svg'
+import { focusCatalogResults } from '@/features/catalog/focus-catalog-results'
 import { MaskIcon } from '@/shared/components/mask-icon'
 import { Button } from '@/shared/ui/button'
 import {
@@ -21,11 +22,20 @@ export function SearchDialog({ triggerClassName }: SearchDialogProps) {
   const navigate = useNavigate()
   const [open, setOpen] = useState(false)
   const [term, setTerm] = useState('')
+  // After a search, focus goes to the results instead of back to the header button.
+  const searched = useRef(false)
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
+    searched.current = true
     setOpen(false)
-    void navigate({ to: '/', search: { q: term.trim() || undefined }, hash: 'catalogo' })
+    void navigate({
+      to: '/',
+      search: { q: term.trim() || undefined },
+      hash: 'catalogo',
+      hashScrollIntoView: false,
+      resetScroll: false,
+    }).then(focusCatalogResults)
   }
 
   return (
@@ -33,13 +43,23 @@ export function SearchDialog({ triggerClassName }: SearchDialogProps) {
       open={open}
       onOpenChange={(next) => {
         setOpen(next)
-        if (next) setTerm('')
+        if (next) {
+          setTerm('')
+          searched.current = false
+        }
       }}
     >
       <DialogTrigger aria-label="Buscar NFTs" className={triggerClassName}>
         <MaskIcon src={searchIcon} className="size-5" />
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent
+        className="sm:max-w-md"
+        onCloseAutoFocus={(event) => {
+          if (!searched.current) return
+          searched.current = false
+          event.preventDefault()
+        }}
+      >
         <DialogHeader>
           <DialogTitle className="text-lg font-bold">Buscar NFTs</DialogTitle>
           <DialogDescription>Pesquise por nome, coleção ou atributo.</DialogDescription>
