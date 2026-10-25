@@ -117,6 +117,16 @@ export async function expireSessions(page: Page): Promise<void> {
   })
 }
 
+/** Keeps new orders pending, even across reloads, until `settleOrders` runs. */
+export async function holdOrders(page: Page): Promise<void> {
+  await page.evaluate(() => {
+    const controls = (window as Window & { kurioMocks?: { holdOrders: (hold: boolean) => void } })
+      .kurioMocks
+    if (!controls) throw new Error('Mock controls are not installed')
+    controls.holdOrders(true)
+  })
+}
+
 /** Settles pending orders on the simulated server now (instead of waiting their 3 s). */
 export async function settleOrders(page: Page): Promise<void> {
   await page.evaluate(() => {

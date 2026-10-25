@@ -7,7 +7,16 @@ import {
   openReview,
   ordersCount,
 } from './support/checkout'
-import { ANA, BRUNO, expect, settleOrders, signIn, signOut, test } from './support/fixtures'
+import {
+  ANA,
+  BRUNO,
+  expect,
+  holdOrders,
+  settleOrders,
+  signIn,
+  signOut,
+  test,
+} from './support/fixtures'
 import {
   deliveries,
   dropConnections,
@@ -134,7 +143,10 @@ test.describe('Tempo real', () => {
     page,
     isMobileLayout,
   }) => {
+    test.slow()
     await openCheckout(page)
+    // The reloads below can take longer than the 3 s an order stays pending.
+    await holdOrders(page)
     await fillCheckout(page, isMobileLayout)
     const review = await openReview(page)
     await review.getByRole('button', { name: 'Confirmar pagamento' }).click()
