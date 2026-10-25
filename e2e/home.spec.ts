@@ -156,6 +156,52 @@ test.describe('Início — catálogo', () => {
     await expect(cardNames(page).first()).toBeInViewport()
   })
 
+  test('o banner do celular troca de destaque ao arrastar para o lado', async ({
+    page,
+    isMobileLayout,
+  }) => {
+    test.skip(!isMobileLayout, 'O banner com gesto é o do celular.')
+    await page.goto('/')
+    const hero = page.getByRole('region', { name: 'SEJA DONO DA CULTURA DIGITAL' })
+    const dots = hero.getByRole('group', { name: 'Destaques' }).getByRole('button')
+    await expect(dots.first()).toHaveAttribute('aria-pressed', 'true')
+    const box = await hero.boundingBox()
+    if (!box) throw new Error('Banner sem tamanho')
+
+    // A real finger drag (touch events), starting on the artwork link.
+    const cdp = await page.context().newCDPSession(page)
+    const y = box.y + box.height / 2
+    async function swipe(fromX: number, toX: number) {
+      await cdp.send('Input.dispatchTouchEvent', {
+        type: 'touchStart',
+        touchPoints: [{ x: fromX, y }],
+      })
+      for (let step = 1; step <= 5; step++) {
+        await cdp.send('Input.dispatchTouchEvent', {
+          type: 'touchMove',
+          touchPoints: [{ x: fromX + ((toX - fromX) * step) / 5, y }],
+        })
+      }
+      await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] })
+    }
+    const right = box.x + box.width - 60
+    const left = box.x + 60
+
+    await swipe(right, left)
+    await expect(dots.nth(1)).toHaveAttribute('aria-pressed', 'true')
+    await expect(page).toHaveURL(/\/$/)
+
+    // Back to the first, then past it to the last one.
+    await swipe(left, right)
+    await expect(dots.first()).toHaveAttribute('aria-pressed', 'true')
+    await swipe(left, right)
+    await expect(dots.last()).toHaveAttribute('aria-pressed', 'true')
+
+    // A short tap still opens the highlighted NFT.
+    await hero.getByRole('link', { name: /^Ver / }).click()
+    await expect(page).toHaveURL(/\/nft\//)
+  })
+
   test('troca de aba filtra a mesma grade', async ({ page }) => {
     await page.goto('/')
     await waitForResults(page)
