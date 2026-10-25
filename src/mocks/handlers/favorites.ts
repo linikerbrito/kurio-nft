@@ -2,6 +2,7 @@ import { http, HttpResponse } from 'msw'
 import type { Favorites } from '@/features/favorites/types/favorites'
 import { API_BASE } from '@/mocks/config'
 import { getDb, persistFavorites } from '@/mocks/db'
+import { toSummary } from '@/mocks/handlers/nfts'
 import { errorResponse, transientFailure } from '@/mocks/responses'
 import { getMockScenario, simulateLatency } from '@/mocks/scenario'
 import { authenticate } from '@/mocks/session'
@@ -16,7 +17,12 @@ function favoritesFor(request: Request): string[] | null {
 }
 
 function toFavorites(nftIds: string[]): Favorites {
-  return { nftIds: [...nftIds] }
+  const { nfts } = getDb()
+  const items = nftIds.flatMap((id) => {
+    const nft = nfts.find((item) => item.id === id)
+    return nft ? [toSummary(nft)] : []
+  })
+  return { nftIds: [...nftIds], items }
 }
 
 const signInRequired = () =>

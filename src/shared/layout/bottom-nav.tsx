@@ -31,7 +31,8 @@ export function BottomNav() {
   const pathname = useRouterState({ select: (state) => state.location.pathname })
   const cartCount = useCartCount()
   const homeActive = pathname === '/'
-  const profileActive = pathname.startsWith('/perfil')
+  const favoritesActive = pathname === '/perfil/favoritos'
+  const profileActive = pathname.startsWith('/perfil') && !favoritesActive
   const cartActive = pathname === '/carrinho'
 
   return (
@@ -60,13 +61,14 @@ export function BottomNav() {
           <MaskIcon src={homeIcon} className="h-[1.0417rem] w-[0.9896rem]" />
         </Link>
 
-        <UnavailableAction
-          variant="button"
+        <Link
+          to="/perfil/favoritos"
           aria-label="Favoritos"
+          aria-current={favoritesActive ? 'page' : undefined}
           className={`${slotClass} left-[calc(26.09%-0.75rem)]`}
         >
           <MaskIcon src={heartIcon} className="h-[1.1121rem] w-5" />
-        </UnavailableAction>
+        </Link>
 
         <UnavailableAction
           variant="button"

@@ -19,7 +19,7 @@ const helpLinks = [
   'Política do mercado',
   'Denunciar item',
 ]
-const profileLinks = ['Minha coleção', 'Atividade', 'Estúdio do criador', 'Lista de interesse']
+const profileLinks = ['Minha coleção', 'Atividade', 'Estúdio do criador']
 
 const socialLinks = [
   { icon: facebookIcon, label: 'Facebook', href: 'https://www.facebook.com' },
@@ -128,6 +128,11 @@ export function Footer() {
             </Link>
           </li>
           <UnavailableLinks links={profileLinks} />
+          <li>
+            <Link to="/perfil/favoritos" className={footerLinkClass}>
+              Lista de interesse
+            </Link>
+          </li>
         </LinkColumn>
         <LinkColumn title="Central de ajuda">
           <UnavailableLinks links={helpLinks} />

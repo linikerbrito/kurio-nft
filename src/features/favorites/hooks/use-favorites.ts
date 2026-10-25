@@ -30,9 +30,13 @@ interface ToggleFavoriteInput {
   favorite: boolean
 }
 
+/** The summary of a newly saved NFT only arrives with the API answer; removals are immediate. */
 function withFavorite(favorites: Favorites, { nftId, favorite }: ToggleFavoriteInput): Favorites {
   const others = favorites.nftIds.filter((id) => id !== nftId)
-  return { nftIds: favorite ? [nftId, ...others] : others }
+  return {
+    nftIds: favorite ? [nftId, ...others] : others,
+    items: favorite ? favorites.items : favorites.items.filter((item) => item.id !== nftId),
+  }
 }
 
 /**
@@ -47,7 +51,10 @@ export function useToggleFavorite() {
     onMutate: async (input) => {
       await queryClient.cancelQueries({ queryKey: favoriteKeys.all })
       const previous = queryClient.getQueryData<Favorites>(favoriteKeys.all)
-      queryClient.setQueryData(favoriteKeys.all, withFavorite(previous ?? { nftIds: [] }, input))
+      queryClient.setQueryData(
+        favoriteKeys.all,
+        withFavorite(previous ?? { nftIds: [], items: [] }, input),
+      )
       return { previous }
     },
     onError: (error, input, context) => {

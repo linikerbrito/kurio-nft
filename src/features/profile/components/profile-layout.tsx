@@ -1,5 +1,5 @@
-import type { ReactNode } from 'react'
-import { Link, Outlet } from '@tanstack/react-router'
+import { useEffect, useRef, type ReactNode } from 'react'
+import { Link, Outlet, useRouterState } from '@tanstack/react-router'
 import {
   ArrowDownToLine,
   Heart,
@@ -31,7 +31,6 @@ function ItemContent({ icon: Icon, children }: { icon: LucideIcon; children: Rea
 /** Sections without a screen in this delivery: present, announced as unavailable. */
 const unavailableItems: { label: string; icon: LucideIcon }[] = [
   { label: 'Atividade', icon: ShoppingCart },
-  { label: 'Lista de interesse', icon: Heart },
   { label: 'Ofertas', icon: TrendingUp },
   { label: 'Arquivos baixados', icon: ArrowDownToLine },
   { label: 'Suporte', icon: TriangleAlert },
@@ -43,6 +42,15 @@ const unavailableItems: { label: string; icon: LucideIcon }[] = [
  */
 export function ProfileLayout() {
   const logout = useLogout()
+  const menuRef = useRef<HTMLUListElement>(null)
+  const pathname = useRouterState({ select: (state) => state.location.pathname })
+
+  // On phones the menu scrolls sideways: keep the current section in view.
+  useEffect(() => {
+    menuRef.current
+      ?.querySelector('[aria-current="page"]')
+      ?.scrollIntoView({ block: 'nearest', inline: 'nearest' })
+  }, [pathname])
 
   return (
     <div className="mt-6 flex flex-col gap-7 lg:mt-8 lg:flex-row lg:items-start">
@@ -56,7 +64,10 @@ export function ProfileLayout() {
         >
           Meu perfil
         </h2>
-        <ul className="flex gap-1 overflow-x-auto pb-1 lg:flex-col lg:gap-0 lg:overflow-visible lg:pb-0">
+        <ul
+          ref={menuRef}
+          className="flex gap-1 overflow-x-auto pb-1 lg:flex-col lg:gap-0 lg:overflow-visible lg:pb-0"
+        >
           <li>
             <Link
               to="/perfil"
@@ -74,6 +85,15 @@ export function ProfileLayout() {
               activeProps={{ className: activeClass, 'aria-current': 'page' }}
             >
               <ItemContent icon={MapPin}>Carteiras</ItemContent>
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/perfil/favoritos"
+              className={itemClass}
+              activeProps={{ className: activeClass, 'aria-current': 'page' }}
+            >
+              <ItemContent icon={Heart}>Lista de interesse</ItemContent>
             </Link>
           </li>
           {unavailableItems.map((item) => (

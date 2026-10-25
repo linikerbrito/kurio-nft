@@ -48,7 +48,7 @@ const listQuerySchema = z
 
 type ListQuery = z.infer<typeof listQuerySchema>
 
-function toSummary(nft: MockNft): NftSummary {
+export function toSummary(nft: MockNft): NftSummary {
   return {
     id: nft.id,
     tokenId: nft.tokenId,

@@ -9,6 +9,8 @@ import type {
   NftListResponse,
   NftSummary,
 } from '@/features/catalog/types/catalog'
+import { favoriteKeys } from '@/features/favorites/api/favorites-api'
+import type { Favorites } from '@/features/favorites/types/favorites'
 import { orderKeys } from '@/features/orders/api/orders-api'
 import type { Order } from '@/features/orders/types/orders'
 import type { NftUpdatedEvent, OrderUpdatedEvent } from '@/features/realtime/types/realtime'
@@ -69,6 +71,11 @@ export function applyNftUpdated(queryClient: QueryClient, event: NftUpdatedEvent
   )
   queryClient.setQueryData<Nft>(catalogKeys.detail(event.data.id), (nft) =>
     nft ? patchDetail(nft, event) : nft,
+  )
+  queryClient.setQueryData<Favorites>(favoriteKeys.all, (favorites) =>
+    favorites
+      ? { ...favorites, items: favorites.items.map((nft) => patchSummary(nft, event)) }
+      : favorites,
   )
 
   // The cart is priced by the API: fetch it again and say what changed.
