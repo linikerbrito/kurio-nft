@@ -133,6 +133,29 @@ test.describe('Início — catálogo', () => {
     await expect(page.getByText('40 NFTs encontrados')).toBeAttached()
   })
 
+  test('a busca leva o foco e a tela até os resultados', async ({ page, isMobileLayout }) => {
+    if (isMobileLayout) {
+      await page.goto('/')
+      await waitForResults(page)
+      const field = page.getByRole('searchbox', { name: 'Buscar NFTs' })
+      await field.fill('nomad')
+      await field.press('Enter')
+    } else {
+      // From another page the results only exist after the home page loads.
+      await page.goto('/nft/emerald-ape-042')
+      await page.getByRole('button', { name: 'Buscar NFTs' }).click()
+      const dialog = page.getByRole('dialog', { name: 'Buscar NFTs' })
+      await dialog.getByRole('searchbox', { name: 'Termo de busca' }).fill('nomad')
+      await dialog.getByRole('searchbox', { name: 'Termo de busca' }).press('Enter')
+    }
+
+    const catalog = page.getByRole('region', { name: 'Catálogo de NFTs' })
+    await expect(catalog).toBeFocused()
+    await expect(catalog).toBeInViewport()
+    await expect(cardNames(page)).toHaveText(['Sage Nomad #009', 'Violet Nomad #314'])
+    await expect(cardNames(page).first()).toBeInViewport()
+  })
+
   test('troca de aba filtra a mesma grade', async ({ page }) => {
     await page.goto('/')
     await waitForResults(page)
