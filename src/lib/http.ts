@@ -1,7 +1,12 @@
 import axios, { isAxiosError, isCancel } from 'axios'
 import type { z } from 'zod'
 import { apiErrorBodySchema } from '@/lib/api-contract'
-import { clearSessionToken, getSessionToken, SESSION_EXPIRED_EVENT } from '@/lib/session-token'
+import {
+  clearSessionToken,
+  getSessionToken,
+  markSessionExpired,
+  SESSION_EXPIRED_EVENT,
+} from '@/lib/session-token'
 import { getVisitorCartId } from '@/lib/visitor-cart'
 
 export type ApiErrorCode =
@@ -66,6 +71,7 @@ http.interceptors.response.use(undefined, (error: unknown) => {
   const sentToken = isAxiosError(error) && error.config?.headers?.has('Authorization')
   if (apiError.code === 'unauthorized' && sentToken) {
     clearSessionToken()
+    markSessionExpired()
     window.dispatchEvent(new Event(SESSION_EXPIRED_EVENT))
   }
   return Promise.reject(apiError)

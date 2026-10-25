@@ -16,6 +16,7 @@ export function getSessionToken(): string | null {
 
 export function setSessionToken(token: string): void {
   memoryToken = token
+  takeSessionExpired()
   try {
     window.localStorage.setItem(STORAGE_KEY, token)
   } catch {
@@ -29,5 +30,30 @@ export function clearSessionToken(): void {
     window.localStorage.removeItem(STORAGE_KEY)
   } catch {
     // Nothing stored to clear.
+  }
+}
+
+const EXPIRED_KEY = 'kurio:session-expired'
+
+/**
+ * Remembers in this tab that the last session ended on the server, so the next protected
+ * screen still explains why it asks to sign in (even after a reload).
+ */
+export function markSessionExpired(): void {
+  try {
+    window.sessionStorage.setItem(EXPIRED_KEY, '1')
+  } catch {
+    // Without storage the notice only shows on the redirect itself.
+  }
+}
+
+/** Reads and clears the mark left by `markSessionExpired`. */
+export function takeSessionExpired(): boolean {
+  try {
+    const expired = window.sessionStorage.getItem(EXPIRED_KEY) === '1'
+    window.sessionStorage.removeItem(EXPIRED_KEY)
+    return expired
+  } catch {
+    return false
   }
 }
