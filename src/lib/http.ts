@@ -46,9 +46,12 @@ export class ApiError extends Error {
   }
 }
 
+/** Requests without an answer by then fail as `timeout` (repeatable). */
+export const REQUEST_TIMEOUT_MS = 10_000
+
 export const http = axios.create({
   baseURL: import.meta.env.VITE_API_URL ?? '/api',
-  timeout: 10_000,
+  timeout: REQUEST_TIMEOUT_MS,
   withCredentials: true,
   paramsSerializer: { indexes: null },
 })

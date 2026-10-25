@@ -1,5 +1,5 @@
 import Decimal from 'decimal.js'
-import { http, HttpResponse } from 'msw'
+import { delay, http, HttpResponse } from 'msw'
 import { z } from 'zod'
 import { ethAmountSchema } from '@/lib/api-contract'
 import {
@@ -149,6 +149,8 @@ export const nftHandlers = [
     if (scenario === 'error') return transientFailure()
 
     const params = new URL(request.url).searchParams
+    // `out-of-order`: the trending tab answers late, after any request made right after it.
+    if (scenario === 'out-of-order' && params.get('tab') === 'trending') await delay(1_500)
     const parsed = listQuerySchema.safeParse({
       q: params.get('q') ?? undefined,
       collection: params.get('collection') ?? undefined,

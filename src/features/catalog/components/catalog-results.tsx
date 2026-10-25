@@ -6,6 +6,7 @@ import { NftCard, NftCardSkeleton } from '@/features/catalog/components/nft-card
 import { catalogKeys, NFT_PAGE_SIZE } from '@/features/catalog/hooks/use-catalog'
 import { useCatalogSearch } from '@/features/catalog/hooks/use-catalog-search'
 import type { NftListResponse } from '@/features/catalog/types/catalog'
+import { toApiError } from '@/lib/http'
 import { Button } from '@/shared/ui/button'
 
 /**
@@ -31,7 +32,7 @@ function StatusMessage({ title, children }: { title: string; children?: ReactNod
 export function CatalogResults({ query }: CatalogResultsProps) {
   const queryClient = useQueryClient()
   const { clearFilters } = useCatalogSearch()
-  const { data, isPending, isError, isPlaceholderData, isFetching } = query
+  const { data, error, isPending, isError, isPlaceholderData, isFetching } = query
 
   /** Retries every catalog query on screen, so the hero and spotlight recover too. */
   function retry() {
@@ -59,7 +60,9 @@ export function CatalogResults({ query }: CatalogResultsProps) {
 
       {isError && !data && (
         <StatusMessage title="Não foi possível carregar os NFTs.">
-          <p className="text-sm text-fg-muted">Verifique sua conexão e tente novamente.</p>
+          <p className="text-sm text-fg-muted">
+            {error ? toApiError(error).message : 'Verifique sua conexão e tente novamente.'}
+          </p>
           <Button type="button" onClick={retry} disabled={isFetching}>
             {isFetching ? 'Tentando…' : 'Tentar novamente'}
           </Button>

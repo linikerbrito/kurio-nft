@@ -5,6 +5,8 @@ import { delay } from 'msw'
  * Checkout: `wallet-rejected` (the wallet refuses to connect), `price-changed` (a price goes
  * up while the order is sent), `order-timeout` (the order is created but the answer arrives
  * after the client gave up) and `payment-rejected` (the payment is refused).
+ * Network: `offline` (no answer at all), `timeout` (every answer after the client timeout) and
+ * `out-of-order` (the "Em alta" listing answers 1.5 s late, after newer requests).
  */
 export const mockScenarios = [
   'default',
@@ -15,6 +17,9 @@ export const mockScenarios = [
   'price-changed',
   'order-timeout',
   'payment-rejected',
+  'offline',
+  'timeout',
+  'out-of-order',
 ] as const
 export type MockScenario = (typeof mockScenarios)[number]
 
