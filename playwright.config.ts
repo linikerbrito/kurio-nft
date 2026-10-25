@@ -44,6 +44,12 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'], viewport: { width: 1440, height: 900 } },
     },
     {
+      // Smallest desktop layout (lg): the 1440 px measurements must not push the page sideways.
+      name: 'laptop',
+      testMatch: /layout\.spec\.ts/,
+      use: { ...devices['Desktop Chrome'], viewport: { width: 1024, height: 768 } },
+    },
+    {
       // 768 px has no frame: it checks the intermediate layout (visual regression and overflow).
       name: 'tablet',
       testMatch: /(visual|layout)\.spec\.ts/,

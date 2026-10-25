@@ -109,7 +109,7 @@ Todos os controles ficam no objeto `kurioMocks` do console (só existe com mocks
 
 ## Testes
 
-`npm run test:e2e` gera o build de demo, sobe um preview na porta 4317 e roda os specs de `e2e/` no Chromium, nos projetos `desktop` (1440×900) e `mobile` (390×844). O projeto `tablet` (768×1024) roda a regressão visual e a verificação de overflow horizontal de todas as telas. Cada teste começa com navegador e estado limpos. Eventos de tempo real são emitidos pelos controles do servidor simulado e chegam pelo `socket.io-client`.
+`npm run test:e2e` gera o build de demo, sobe um preview na porta 4317 e roda os specs de `e2e/` no Chromium, nos projetos `desktop` (1440×900) e `mobile` (390×844). O projeto `tablet` (768×1024) roda a regressão visual e a verificação de overflow horizontal de todas as telas; o projeto `laptop` (1024×768), só a verificação de overflow. Cada teste começa com navegador e estado limpos. Eventos de tempo real são emitidos pelos controles do servidor simulado e chegam pelo `socket.io-client`.
 
 Cobertura:
 

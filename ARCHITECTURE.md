@@ -219,7 +219,8 @@ O próximo passo seria renderizar o shell no servidor (SSR/prerender), fora da s
   - Os testes observam a interface e os resultados das operações.
   - O REST passa pelos handlers MSW; os eventos passam pelo `socket.io-client`, disparados pelos controles do servidor simulado.
   - Cenários e estado começam limpos a cada teste.
-- **Tablet (768):** projeto `tablet` com regressão visual própria e o spec de layout, que verifica overflow horizontal em todas as telas nos três tamanhos.
+- **Tablet (768):** projeto `tablet` com regressão visual própria e o spec de layout, que verifica overflow horizontal em todas as telas.
+- **Laptop (1024):** projeto `laptop` só com o spec de layout. As medidas do frame de 1440 (hero, Diário, rodapé) valem a partir de 1280 px; entre 1024 e 1279 os mesmos blocos usam larguras flexíveis.
 - **Regressão visual** (`e2e/visual.spec.ts`): Início, Detalhe, Carrinho, Login e Pagamento.
   - **Estabilidade:** relógio congelado, imagens e fontes carregadas, animações desligadas e toasts mascarados.
   - **Recorte:** desktop captura a página inteira; mobile e diálogos capturam a tela.
