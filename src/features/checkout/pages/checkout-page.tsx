@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react'
+import { type ReactNode, useEffect, useMemo, useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Link, useNavigate, useSearch } from '@tanstack/react-router'
 import { useForm, useWatch, type UseFormReturn } from 'react-hook-form'
@@ -33,6 +33,7 @@ import {
   NetworkField,
   OtherWalletToggle,
   SavedWalletField,
+  type WalletsState,
 } from '@/features/checkout/components/wallet-fields'
 import { ProviderPicker, SavedWalletPicker } from '@/features/checkout/components/wallet-pickers'
 import {
@@ -197,12 +198,31 @@ function CheckoutForm({ user, cart, onReviewChange }: CheckoutFormProps) {
   const draft = useWatch({ control: form.control })
   useEffect(() => writeSessionValue(draftKey(user.id), draft), [draft, user.id])
 
-  // Start on the primary wallet once the saved wallets arrive.
-  const savedWallets = wallets.data ?? []
+  // Start on the primary wallet once the saved wallets arrive. Without any (or if they cannot be
+  // loaded), the form starts on "Usar outra carteira?" so the address can be typed.
+  const savedWallets = useMemo(() => wallets.data ?? [], [wallets.data])
+  const walletsState: WalletsState = wallets.isPending
+    ? 'pending'
+    : wallets.isError
+      ? 'error'
+      : 'ready'
   useEffect(() => {
+    if (wallets.isError || (wallets.data && wallets.data.length === 0)) {
+      if (!form.getValues('useOtherWallet')) form.setValue('useOtherWallet', true)
+      return
+    }
     const first = wallets.data?.find((wallet) => wallet.kind === 'primary') ?? wallets.data?.[0]
     if (first && !form.getValues('walletId')) selectSavedWallet(form, wallets.data ?? [], first.id)
-  }, [wallets.data, form])
+  }, [wallets.data, wallets.isError, form])
+
+  // The address field always shows the selected saved wallet's address until the user switches to
+  // "Usar outra carteira?" (by typing or checking it); switching back restores it.
+  const useOtherWallet = useWatch({ control: form.control, name: 'useOtherWallet' })
+  useEffect(() => {
+    if (useOtherWallet) return
+    const saved = savedWallets.find((wallet) => wallet.id === form.getValues('walletId'))
+    if (saved) form.setValue('address', saved.address)
+  }, [useOtherWallet, savedWallets, form])
 
   async function startReview(values: CheckoutFormValues) {
     setPageError(null)
@@ -324,7 +344,7 @@ function CheckoutForm({ user, cart, onReviewChange }: CheckoutFormProps) {
     form,
     cart,
     wallets: savedWallets,
-    walletsPending: wallets.isPending,
+    walletsState,
     reviewing,
     pageError,
     onSubmit,
@@ -367,13 +387,21 @@ interface StepProps {
   form: UseFormReturn<CheckoutFormValues>
   cart: Cart
   wallets: Wallet[]
-  walletsPending: boolean
+  walletsState: WalletsState
   reviewing: boolean
   pageError: string | null
   onSubmit: () => void
 }
 
-function DesktopCheckout({ form, cart, wallets, reviewing, pageError, onSubmit }: StepProps) {
+function DesktopCheckout({
+  form,
+  cart,
+  wallets,
+  walletsState,
+  reviewing,
+  pageError,
+  onSubmit,
+}: StepProps) {
   const [couponOpen, setCouponOpen] = useState(cart.coupon !== null)
   const provider = form.watch('provider')
 
@@ -401,10 +429,16 @@ function DesktopCheckout({ form, cart, wallets, reviewing, pageError, onSubmit }
             <NetworkField form={form} variant="desktop" />
             <ProfileNameField form={form} variant="desktop" />
             <AddressField form={form} variant="desktop" wallets={wallets} />
-            <div className="self-end">
+            {/* Lines up with the address input (below the label), whatever the help text under it. */}
+            <div className="self-start pt-[1.375rem]">
               <SecondaryWalletField form={form} variant="desktop" hiddenLabel />
             </div>
-            <SavedWalletField form={form} variant="desktop" wallets={wallets} />
+            <SavedWalletField
+              form={form}
+              variant="desktop"
+              wallets={wallets}
+              state={walletsState}
+            />
             <ReferralCodeField form={form} variant="desktop" />
             <EmailField form={form} variant="desktop" />
             <EnsNameField form={form} variant="desktop" />
@@ -520,7 +554,7 @@ function MobileWalletStep({
   form,
   cart,
   wallets,
-  walletsPending,
+  walletsState,
   reviewing,
   pageError,
   onSubmit,
@@ -540,8 +574,19 @@ function MobileWalletStep({
     >
       <MobileHeader title="Pagamento com carteira" />
       <div className="mt-8 flex flex-col gap-6">
-        {walletsPending ? (
+        {walletsState === 'pending' ? (
           <Skeleton className="h-48 rounded-[14px]" />
+        ) : walletsState === 'error' || wallets.length === 0 ? (
+          <p role="status" className="rounded-[14px] bg-surface p-5 text-sm text-fg-muted">
+            {walletsState === 'error'
+              ? 'Não foi possível carregar suas carteiras. Informe o endereço abaixo.'
+              : 'Você ainda não tem carteiras salvas. Informe o endereço abaixo ou '}
+            {walletsState !== 'error' && (
+              <Link to="/perfil/carteiras" className="font-bold text-fg-accent hover:underline">
+                cadastre uma carteira
+              </Link>
+            )}
+          </p>
         ) : (
           <SavedWalletPicker
             wallets={useOther ? [] : wallets}

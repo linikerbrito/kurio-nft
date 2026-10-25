@@ -2,7 +2,7 @@ import type { UseFormReturn } from 'react-hook-form'
 import type { CheckoutFormValues } from '@/features/checkout/types/checkout'
 import type { Wallet } from '@/features/wallets/types/wallets'
 
-/** Picking a saved wallet also brings its network, which stays editable. */
+/** Picking a saved wallet also brings its network (editable) and shows its address. */
 export function selectSavedWallet(
   form: UseFormReturn<CheckoutFormValues>,
   wallets: Wallet[],
@@ -10,6 +10,7 @@ export function selectSavedWallet(
 ) {
   form.setValue('walletId', walletId, { shouldValidate: form.formState.isSubmitted })
   const wallet = wallets.find((item) => item.id === walletId)
-  if (wallet)
-    form.setValue('network', wallet.network, { shouldValidate: form.formState.isSubmitted })
+  if (!wallet) return
+  form.setValue('network', wallet.network, { shouldValidate: form.formState.isSubmitted })
+  if (!form.getValues('useOtherWallet')) form.setValue('address', wallet.address)
 }

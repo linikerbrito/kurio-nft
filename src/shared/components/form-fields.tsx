@@ -20,6 +20,8 @@ interface FieldShellProps {
   /** Label only for assistive technology (the design shows a placeholder instead). */
   hiddenLabel?: boolean
   error?: string
+  /** Short help below the control, announced with it. */
+  hint?: ReactNode
   className?: string
   children: (control: { id: string; describedBy: string | undefined }) => ReactNode
 }
@@ -29,11 +31,14 @@ function FieldShell({
   required = false,
   hiddenLabel = false,
   error,
+  hint,
   className = '',
   children,
 }: FieldShellProps) {
   const id = useId()
   const errorId = `${id}-error`
+  const hintId = `${id}-hint`
+  const describedBy = [hint ? hintId : null, error ? errorId : null].filter(Boolean).join(' ')
 
   return (
     <div className={`flex flex-col gap-1.5 ${className}`}>
@@ -45,7 +50,12 @@ function FieldShell({
           </span>
         )}
       </div>
-      {children({ id, describedBy: error ? errorId : undefined })}
+      {children({ id, describedBy: describedBy || undefined })}
+      {hint && (
+        <p id={hintId} className="text-xs text-fg-muted">
+          {hint}
+        </p>
+      )}
       {error && (
         <p id={errorId} className="text-xs text-required">
           {error}
@@ -63,6 +73,7 @@ export function TextField({
   required,
   hiddenLabel,
   error,
+  hint,
   className,
   variant,
   type = 'text',
@@ -72,7 +83,7 @@ export function TextField({
   const password = type === 'password'
 
   return (
-    <FieldShell {...{ label, required, hiddenLabel, error, className }}>
+    <FieldShell {...{ label, required, hiddenLabel, error, hint, className }}>
       {({ id, describedBy }) => {
         const input = (
           <input
@@ -147,13 +158,14 @@ export function SelectField({
   required,
   hiddenLabel,
   error,
+  hint,
   className,
   variant,
   children,
   ...selectProps
 }: FieldProps<ComponentProps<'select'>> & { children: ReactNode }) {
   return (
-    <FieldShell {...{ label, required, hiddenLabel, error, className }}>
+    <FieldShell {...{ label, required, hiddenLabel, error, hint, className }}>
       {({ id, describedBy }) => (
         <div className="relative">
           <select
