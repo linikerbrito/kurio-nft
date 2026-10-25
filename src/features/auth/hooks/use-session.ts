@@ -14,6 +14,7 @@ import { cartKeys } from '@/features/cart/hooks/use-cart'
 import { clearCheckoutStorage } from '@/features/checkout/hooks/use-checkout'
 import { favoriteKeys } from '@/features/favorites/api/favorites-api'
 import { orderKeys } from '@/features/orders/api/orders-api'
+import { profileKeys } from '@/features/profile/api/profile-api'
 import { walletKeys } from '@/features/wallets/api/wallets-api'
 import { ApiError } from '@/lib/http'
 import {
@@ -66,6 +67,7 @@ export function clearPrivateData(queryClient: QueryClient): void {
   queryClient.removeQueries({ queryKey: favoriteKeys.all })
   queryClient.removeQueries({ queryKey: walletKeys.all })
   queryClient.removeQueries({ queryKey: orderKeys.all })
+  queryClient.removeQueries({ queryKey: profileKeys.all })
 }
 
 function useSignIn<TVariables>(request: (variables: TVariables) => Promise<AuthResponse>) {

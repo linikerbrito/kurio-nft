@@ -10,6 +10,10 @@ export interface MockUser {
   passwordHash: string
   avatarUrl: string | null
   createdAt: string
+  /** Collector profile; optional so accounts stored before it existed still load. */
+  username?: string
+  ensName?: string
+  walletNickname?: string
 }
 
 export const userFixtures: readonly MockUser[] = [
@@ -21,6 +25,9 @@ export const userFixtures: readonly MockUser[] = [
     passwordHash: '401c332eb3fb69ec696976ac215597affc882af407dc3117d42544deec5f74d2',
     avatarUrl: null,
     createdAt: '2026-06-02T12:00:00.000Z',
+    username: 'ana',
+    ensName: 'anacoleciona',
+    walletNickname: 'Cofre da Ana',
   },
   {
     id: 'user-bruno',
@@ -30,5 +37,8 @@ export const userFixtures: readonly MockUser[] = [
     passwordHash: '8ed7890ae7bd2e157d5259966bb152c909446a370fd111db90e92a3929680ac9',
     avatarUrl: null,
     createdAt: '2026-07-15T12:00:00.000Z',
+    username: 'bruno',
+    ensName: 'brunocria',
+    walletNickname: 'Ateliê',
   },
 ]

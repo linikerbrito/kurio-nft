@@ -20,7 +20,7 @@ export type Session = z.infer<typeof sessionSchema>
 export const authResponseSchema = sessionSchema.extend({ token: z.string() })
 export type AuthResponse = z.infer<typeof authResponseSchema>
 
-const emailField = z
+export const emailField = z
   .string()
   .trim()
   .min(1, 'Informe seu e-mail.')
@@ -32,6 +32,13 @@ export const loginFormSchema = z.object({
 })
 export type LoginFormValues = z.infer<typeof loginFormSchema>
 
+/** Rules for a new password (sign-up and password change). */
+export const newPasswordSchema = z
+  .string()
+  .min(8, 'A senha precisa de pelo menos 8 caracteres.')
+  .regex(/[A-Za-z]/, 'Use pelo menos uma letra.')
+  .regex(/\d/, 'Use pelo menos um número.')
+
 export const registerFormSchema = z
   .object({
     name: z
@@ -40,11 +47,7 @@ export const registerFormSchema = z
       .min(2, 'O nome precisa de pelo menos 2 caracteres.')
       .max(40, 'Use até 40 caracteres.'),
     email: emailField,
-    password: z
-      .string()
-      .min(8, 'A senha precisa de pelo menos 8 caracteres.')
-      .regex(/[A-Za-z]/, 'Use pelo menos uma letra.')
-      .regex(/\d/, 'Use pelo menos um número.'),
+    password: newPasswordSchema,
     confirmPassword: z.string().min(1, 'Confirme sua senha.'),
   })
   .refine((values) => values.password === values.confirmPassword, {

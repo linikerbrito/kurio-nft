@@ -1,7 +1,12 @@
 import { nftFixtures, type MockNft } from '@/mocks/fixtures/nfts'
 import type { CartCoupon, CartSummary } from '@/features/cart/types/cart'
 import type { OrderItem, OrderStatus } from '@/features/orders/types/orders'
-import type { Wallet, WalletConnection } from '@/features/wallets/types/wallets'
+import { z } from 'zod'
+import {
+  walletListSchema,
+  type Wallet,
+  type WalletConnection,
+} from '@/features/wallets/types/wallets'
 import { userFixtures, type MockUser } from '@/mocks/fixtures/users'
 import { walletFixtures } from '@/mocks/fixtures/wallets'
 
@@ -112,6 +117,13 @@ function cloneWallets(): Record<string, Wallet[]> {
   )
 }
 
+/** Wallets saved by an older version of the mocks (other fields) are replaced by the fixtures. */
+function restoreWallets(): Record<string, Wallet[]> {
+  const stored = load<unknown>(STORAGE_KEYS.wallets, null)
+  const parsed = z.record(z.string(), walletListSchema).safeParse(stored)
+  return parsed.success ? parsed.data : cloneWallets()
+}
+
 const emptyOrders: MockOrders = { orders: [], connections: {}, idempotency: {} }
 
 /** Stock sold by confirmed orders, replayed on the fixtures after a reload. */
@@ -142,7 +154,7 @@ function createDb(restore: boolean): MockDb {
       : structuredClone([...userFixtures]),
     sessions: restore ? load(STORAGE_KEYS.sessions, {}) : {},
     favorites: restore ? load(STORAGE_KEYS.favorites, {}) : {},
-    wallets: restore ? load(STORAGE_KEYS.wallets, cloneWallets()) : cloneWallets(),
+    wallets: restore ? restoreWallets() : cloneWallets(),
   }
 }
 

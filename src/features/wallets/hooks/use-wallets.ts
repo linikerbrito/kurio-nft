@@ -1,12 +1,19 @@
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useSession } from '@/features/auth/hooks/use-session'
 import {
   connectWallet,
+  createWallet,
   disconnectWallet,
   fetchWallets,
+  updateWallet,
   walletKeys,
 } from '@/features/wallets/api/wallets-api'
-import type { ConnectWalletInput } from '@/features/wallets/types/wallets'
+import type {
+  ConnectWalletInput,
+  Wallet,
+  WalletInput,
+  WalletKind,
+} from '@/features/wallets/types/wallets'
 
 export function useWallets() {
   const { data: session } = useSession()
@@ -25,4 +32,27 @@ export function useConnectWallet() {
 
 export function useDisconnectWallet() {
   return useMutation({ mutationFn: (connectionId: string) => disconnectWallet(connectionId) })
+}
+
+/** Creates the wallet of a kind or updates the saved one; the list is replaced in the cache. */
+export function useSaveWallet() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({
+      wallet,
+      kind,
+      input,
+    }: {
+      wallet?: Wallet
+      kind: WalletKind
+      input: WalletInput
+    }) => (wallet ? updateWallet(wallet.id, input) : createWallet(kind, input)),
+    onSuccess: (saved) => {
+      queryClient.setQueryData<Wallet[]>(walletKeys.all, (wallets = []) =>
+        wallets.some((item) => item.id === saved.id)
+          ? wallets.map((item) => (item.id === saved.id ? saved : item))
+          : [...wallets, saved],
+      )
+    },
+  })
 }
