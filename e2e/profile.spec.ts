@@ -118,7 +118,9 @@ test.describe('Carteiras', () => {
     await primary.getByLabel('Endereço da carteira', { exact: true }).fill('0x123')
     await primary.getByRole('button', { name: 'Salvar carteira' }).click()
     await expect(
-      primary.getByText('Use um endereço 0x com 40 caracteres hexadecimais.'),
+      primary.getByText(
+        'Endereço inválido. Ele começa com 0x e tem mais 40 números ou letras de a a f.',
+      ),
     ).toBeVisible()
 
     // The address of the secondary wallet cannot be reused.

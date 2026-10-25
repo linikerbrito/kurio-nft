@@ -160,10 +160,21 @@ test.describe('Pagamento — campos', () => {
     }
     await expect(page.getByRole('checkbox', { name: 'Usar outra carteira?' })).toBeChecked()
 
-    await field(page, 'Endereço da carteira').fill('0x123')
+    // An ENS name typed here points to the ENS field.
+    await field(page, 'Endereço da carteira').fill('carla.eth')
     await page.getByRole('radio', { name: 'MetaMask' }).check()
     await page.getByRole('button', { name: 'Confirmar compra' }).click()
-    await expect(message(page, 'Use um endereço 0x com 40 caracteres hexadecimais.')).toBeVisible()
+    await expect(
+      message(page, 'Aqui vai o endereço 0x da carteira; nomes ENS vão no campo ENS.'),
+    ).toBeVisible()
+
+    await field(page, 'Endereço da carteira').fill('0x123')
+    await expect(
+      message(
+        page,
+        'Endereço inválido. Ele começa com 0x e tem mais 40 números ou letras de a a f.',
+      ),
+    ).toBeVisible()
     await expect(message(page, 'Selecione uma rede.')).toBeVisible()
 
     await field(page, 'Endereço da carteira').fill('0xC0FFEE0000000000000000000000000000000001')

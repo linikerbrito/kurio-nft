@@ -2,11 +2,19 @@ import { z } from 'zod'
 import { networkSchema } from '@/features/catalog/types/catalog'
 import { emailField } from '@/features/auth/types/auth'
 
-/** Ethereum-style address: `0x` followed by 40 hex digits. */
+/** Ethereum-style address: `0x` followed by 40 hex digits. ENS names get their own hint. */
 export const walletAddressSchema = z
   .string()
   .trim()
-  .regex(/^0x[0-9a-fA-F]{40}$/, 'Use um endereço 0x com 40 caracteres hexadecimais.')
+  .superRefine((value, context) => {
+    if (/^0x[0-9a-fA-F]{40}$/.test(value)) return
+    context.addIssue({
+      code: 'custom',
+      message: /\.eth$/i.test(value)
+        ? 'Aqui vai o endereço 0x da carteira; nomes ENS vão no campo ENS.'
+        : 'Endereço inválido. Ele começa com 0x e tem mais 40 números ou letras de a a f.',
+    })
+  })
 
 export const walletKindSchema = z.enum(['primary', 'secondary'])
 export type WalletKind = z.infer<typeof walletKindSchema>
