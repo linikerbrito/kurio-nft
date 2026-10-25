@@ -1,6 +1,7 @@
 import axios, { isAxiosError, isCancel } from 'axios'
 import type { z } from 'zod'
 import { apiErrorBodySchema } from '@/lib/api-contract'
+import { getVisitorCartId } from '@/lib/visitor-cart'
 
 export type ApiErrorCode =
   | 'validation'
@@ -43,6 +44,14 @@ export const http = axios.create({
   timeout: 10_000,
   withCredentials: true,
   paramsSerializer: { indexes: null },
+})
+
+/** Header the API uses to find the visitor's cart. */
+export const CART_ID_HEADER = 'X-Cart-Id'
+
+http.interceptors.request.use((config) => {
+  config.headers.set(CART_ID_HEADER, getVisitorCartId())
+  return config
 })
 
 http.interceptors.response.use(undefined, (error: unknown) => {

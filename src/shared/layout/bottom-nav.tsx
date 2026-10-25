@@ -10,7 +10,7 @@ import scanBottomLeft from '@/assets/figma/mobile/scan-part-2.svg'
 import scanTopRight from '@/assets/figma/mobile/scan-part-3.svg'
 import scanBottomRight from '@/assets/figma/mobile/scan-part-4.svg'
 import scanTopLeft from '@/assets/figma/mobile/scan-part-5.svg'
-import { useCartCount } from '@/features/cart/hooks/use-cart-count'
+import { useCartCount } from '@/features/cart/hooks/use-cart'
 import { MaskIcon } from '@/shared/components/mask-icon'
 import { UnavailableAction } from '@/shared/components/unavailable-action'
 

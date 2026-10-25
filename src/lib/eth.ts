@@ -1,8 +1,13 @@
 import Decimal from 'decimal.js'
 
-/** Formats a decimal ETH string for display, e.g. "1.19 ETH". */
+/**
+ * Formats a decimal ETH string for display with at least two decimals, e.g. "1.19 ETH",
+ * keeping up to four when a value needs them (network fees such as "0.016 ETH").
+ */
 export function formatEth(value: string): string {
-  return `${new Decimal(value).toFixed(2)} ETH`
+  const amount = new Decimal(value)
+  const places = Math.min(4, Math.max(2, amount.decimalPlaces()))
+  return `${amount.toFixed(places)} ETH`
 }
 
 /** Amount with two decimals and a comma separator, as shown in the price filter. */
