@@ -9,6 +9,9 @@ export type MockScenario =
   | 'price-changed'
   | 'order-timeout'
   | 'payment-rejected'
+  | 'offline'
+  | 'timeout'
+  | 'out-of-order'
 
 interface Fixtures {
   /** Mock scenario stored before the app boots; override with `test.use({ scenario })`. */

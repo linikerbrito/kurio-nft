@@ -174,4 +174,63 @@ test.describe('Pagamento', () => {
     await expect(page.getByLabel('Código de indicação')).toHaveValue('KURIO2026')
     await expect(page.getByLabel('Nome ENS')).toHaveValue('anacoleciona')
   })
+
+  test('a mesma chave de idempotência com outro conteúdo gera conflito', async ({ page }) => {
+    await openCheckout(page)
+
+    // Straight to the simulated API: quote, wallet connection and three sends with one key.
+    const results = await page.evaluate(async () => {
+      const token = window.localStorage.getItem('kurio:session-token') ?? ''
+      const headers = { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }
+      const post = (url: string, body: unknown, extra: Record<string, string> = {}) =>
+        fetch(url, {
+          method: 'POST',
+          headers: { ...headers, ...extra },
+          body: JSON.stringify(body),
+        })
+
+      const quote = (await (await post('/api/checkout/quote', {})).json()) as { id: string }
+      const connection = (await (
+        await post('/api/wallet-connections', {
+          walletId: 'wallet-ana-primary',
+          address: null,
+          network: 'ethereum',
+          provider: 'metamask',
+        })
+      ).json()) as { id: string }
+      const collector = {
+        displayName: 'Ana Colecionadora',
+        username: 'ana',
+        profileName: 'Ana',
+        email: 'ana@kurio.dev',
+        referralCode: 'KURIO2026',
+        ensName: 'anacoleciona',
+        secondaryWallet: '',
+        note: '',
+      }
+      const order = { quoteId: quote.id, connectionId: connection.id, collector }
+      const key = { 'Idempotency-Key': 'tentativa-teste-1' }
+
+      const first = await post('/api/orders', order, key)
+      const repeated = await post('/api/orders', order, key)
+      const changed = await post(
+        '/api/orders',
+        { ...order, collector: { ...collector, note: 'outro pedido' } },
+        key,
+      )
+      const firstBody = (await first.json()) as { id: string }
+      const repeatedBody = (await repeated.json()) as { id: string }
+      const changedBody = (await changed.json()) as { error: { code: string } }
+      return {
+        statuses: [first.status, repeated.status, changed.status],
+        sameOrder: firstBody.id === repeatedBody.id,
+        conflict: changedBody.error.code,
+      }
+    })
+
+    expect(results.statuses).toEqual([201, 200, 409])
+    expect(results.sameOrder).toBe(true)
+    expect(results.conflict).toBe('conflict')
+    expect(await ordersCount(page)).toBe(1)
+  })
 })
