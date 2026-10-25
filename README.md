@@ -2,7 +2,7 @@
 
 Marketplace de NFTs em React e TypeScript: descoberta (catálogo, busca, filtros), detalhe, carrinho, pagamento com carteira, confirmação de pedido, conta do colecionador (login, cadastro, perfil, carteiras) e favoritos. A API REST e o servidor Socket.IO são simulados no navegador com MSW, inclusive no build publicado.
 
-- **Demonstração:** _URL do deploy_ (ver [Deploy](#deploy))
+- **Demonstração:** https://kurio-nft-hazel.vercel.app (build de demo com a API e o tempo real simulados no navegador)
 - **Arquitetura, contratos e decisões:** [ARCHITECTURE.md](ARCHITECTURE.md)
 
 ## Stack
