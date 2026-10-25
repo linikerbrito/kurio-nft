@@ -24,3 +24,13 @@ export function getVisitorCartId(): string {
     return memoryCartId
   }
 }
+
+/** Starts a fresh visitor cart, so a signed-out browser no longer sees the account's items. */
+export function rotateVisitorCartId(): void {
+  memoryCartId = undefined
+  try {
+    window.localStorage.removeItem(STORAGE_KEY)
+  } catch {
+    // Nothing stored to clear.
+  }
+}

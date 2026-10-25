@@ -1,6 +1,7 @@
 import axios, { isAxiosError, isCancel } from 'axios'
 import type { z } from 'zod'
 import { apiErrorBodySchema } from '@/lib/api-contract'
+import { clearSessionToken, getSessionToken, SESSION_EXPIRED_EVENT } from '@/lib/session-token'
 import { getVisitorCartId } from '@/lib/visitor-cart'
 
 export type ApiErrorCode =
@@ -51,6 +52,8 @@ export const CART_ID_HEADER = 'X-Cart-Id'
 
 http.interceptors.request.use((config) => {
   config.headers.set(CART_ID_HEADER, getVisitorCartId())
+  const token = getSessionToken()
+  if (token) config.headers.set('Authorization', `Bearer ${token}`)
   return config
 })
 
@@ -58,7 +61,14 @@ http.interceptors.response.use(undefined, (error: unknown) => {
   if (isCancel(error)) {
     return Promise.reject(error)
   }
-  return Promise.reject(toApiError(error))
+  const apiError = toApiError(error)
+  /** A 401 on a request that carried a token means the session ended on the server. */
+  const sentToken = isAxiosError(error) && error.config?.headers?.has('Authorization')
+  if (apiError.code === 'unauthorized' && sentToken) {
+    clearSessionToken()
+    window.dispatchEvent(new Event(SESSION_EXPIRED_EVENT))
+  }
+  return Promise.reject(apiError)
 })
 
 function codeFromStatus(status: number): ApiErrorCode {

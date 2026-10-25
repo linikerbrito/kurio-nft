@@ -2,9 +2,11 @@ import { useMatches, Outlet } from '@tanstack/react-router'
 import { Footer } from '@/shared/layout/footer'
 import { Header } from '@/shared/layout/header'
 import { BottomNav } from '@/shared/layout/bottom-nav'
+import { useSessionExpiredHandler } from '@/features/auth/hooks/use-session'
 import { Toaster } from '@/shared/ui/sonner'
 
 export function AppShell() {
+  useSessionExpiredHandler()
   const matches = useMatches()
   const activeMatch = matches[matches.length - 1]
   const layout = activeMatch?.staticData.layout

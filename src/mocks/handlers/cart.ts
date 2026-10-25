@@ -7,6 +7,7 @@ import { API_BASE } from '@/mocks/config'
 import { getDb, persistCarts, type MockCart } from '@/mocks/db'
 import { errorResponse, transientFailure } from '@/mocks/responses'
 import { getMockScenario, simulateLatency } from '@/mocks/scenario'
+import { authenticate, userCartId } from '@/mocks/session'
 
 /** Base fee plus one share per distinct network in the cart ("Taxa estimada"). */
 const BASE_NETWORK_FEE = new Decimal('0.004')
@@ -31,8 +32,12 @@ const addItemSchema = z.object({
 const updateItemSchema = z.object({ quantity: z.number().int().min(1).max(999) })
 const couponSchema = z.object({ code: z.string().trim().min(1).max(40) })
 
-function cartFor(request: Request): MockCart | null {
-  const cartId = request.headers.get(CART_ID_HEADER)
+/** Signed-in users get their account cart; visitors the cart named by the header. */
+function cartFor(request: Request): MockCart | 'unauthorized' | null {
+  const auth = authenticate(request)
+  if (auth.status === 'invalid') return 'unauthorized'
+  const cartId =
+    auth.status === 'valid' ? userCartId(auth.user.id) : request.headers.get(CART_ID_HEADER)
   if (!cartId) return null
   const { carts } = getDb()
   carts[cartId] ??= { id: cartId, lines: [], couponCode: null }
@@ -118,6 +123,9 @@ async function prepare(request: Request) {
   await simulateLatency()
   if (getMockScenario() === 'error') return { failure: transientFailure() }
   const cart = cartFor(request)
+  if (cart === 'unauthorized') {
+    return { failure: errorResponse('unauthorized', 'Sua sessão expirou.') }
+  }
   if (!cart) return { failure: errorResponse('validation', 'Carrinho não identificado.') }
   return { cart }
 }

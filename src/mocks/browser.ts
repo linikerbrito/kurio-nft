@@ -1,5 +1,5 @@
 import { setupWorker } from 'msw/browser'
-import { resetDb } from '@/mocks/db'
+import { expireSessions, resetDb } from '@/mocks/db'
 import { handlers } from '@/mocks/handlers'
 import { mockScenarios, resetLatency, setMockScenario, type MockScenario } from '@/mocks/scenario'
 
@@ -9,6 +9,8 @@ interface MockControls {
   scenarios: readonly MockScenario[]
   setScenario: (scenario: MockScenario) => void
   reset: () => void
+  /** Expires every open session, to exercise the expiration flows. */
+  expireSessions: () => void
 }
 
 declare global {
@@ -26,6 +28,7 @@ function installControls(): void {
       resetDb()
       resetLatency()
     },
+    expireSessions,
   }
 }
 

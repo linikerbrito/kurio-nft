@@ -1,25 +1,19 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { z } from 'zod'
+import { createFileRoute, redirect } from '@tanstack/react-router'
+import { authSearchSchema } from '@/features/auth/auth-search'
 import { RegisterPage } from '@/features/auth/pages/register-page'
-
-const redirectSearchSchema = z.object({
-  redirect: z
-    .string()
-    .optional()
-    .refine(
-      (redirect) =>
-        redirect === undefined ||
-        (redirect.startsWith('/') && !redirect.startsWith('//') && !redirect.includes('\\')),
-      'O redirecionamento deve ser um caminho interno.',
-    ),
-})
+import { getSession } from '@/features/auth/session'
 
 export const Route = createFileRoute('/cadastro')({
-  validateSearch: redirectSearchSchema,
+  validateSearch: authSearchSchema,
+  /** Someone already signed in goes straight to where they were heading. */
+  beforeLoad: async ({ context, search }) => {
+    const { session } = await getSession(context.queryClient)
+    if (session) throw redirect({ href: search.redirect ?? '/' })
+  },
   staticData: {
     layout: {
       header: true,
-      footer: false,
+      footer: true,
       bottomNav: false,
     },
   },

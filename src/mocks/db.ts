@@ -1,4 +1,5 @@
 import { nftFixtures, type MockNft } from '@/mocks/fixtures/nfts'
+import { userFixtures, type MockUser } from '@/mocks/fixtures/users'
 
 export interface MockCartLine {
   id: string
@@ -13,47 +14,84 @@ export interface MockCart {
   couponCode: string | null
 }
 
+export interface MockSession {
+  userId: string
+  expiresAt: string
+}
+
 interface MockDb {
   nfts: MockNft[]
   carts: Record<string, MockCart>
+  users: MockUser[]
+  sessions: Record<string, MockSession>
 }
 
-/** Carts survive reloads, as a real API would keep them; the catalog always starts clean. */
-const CARTS_STORAGE_KEY = 'kurio:mock-carts'
+/**
+ * Carts, accounts and sessions survive reloads, as a real API would keep them;
+ * the catalog always starts clean.
+ */
+const STORAGE_KEYS = {
+  carts: 'kurio:mock-carts',
+  users: 'kurio:mock-users',
+  sessions: 'kurio:mock-sessions',
+} as const
 
-function loadCarts(): Record<string, MockCart> {
+function load<T>(key: string, fallback: T): T {
   try {
-    const raw = window.localStorage.getItem(CARTS_STORAGE_KEY)
-    return raw ? (JSON.parse(raw) as Record<string, MockCart>) : {}
+    const raw = window.localStorage.getItem(key)
+    return raw ? (JSON.parse(raw) as T) : fallback
   } catch {
-    return {}
+    return fallback
   }
 }
 
-function createDb(carts: Record<string, MockCart>): MockDb {
-  return { nfts: structuredClone([...nftFixtures]), carts }
+function save(key: string, value: unknown): void {
+  try {
+    window.localStorage.setItem(key, JSON.stringify(value))
+  } catch {
+    // Storage unavailable: data lives only in memory for this page.
+  }
 }
 
-let db = createDb(loadCarts())
+function createDb(restore: boolean): MockDb {
+  return {
+    nfts: structuredClone([...nftFixtures]),
+    carts: restore ? load(STORAGE_KEYS.carts, {}) : {},
+    users: restore
+      ? load(STORAGE_KEYS.users, structuredClone([...userFixtures]))
+      : structuredClone([...userFixtures]),
+    sessions: restore ? load(STORAGE_KEYS.sessions, {}) : {},
+  }
+}
+
+let db = createDb(true)
 
 export function getDb(): MockDb {
   return db
 }
 
 export function persistCarts(): void {
-  try {
-    window.localStorage.setItem(CARTS_STORAGE_KEY, JSON.stringify(db.carts))
-  } catch {
-    // Storage unavailable: carts live only in memory for this page.
-  }
+  save(STORAGE_KEYS.carts, db.carts)
+}
+
+export function persistAccounts(): void {
+  save(STORAGE_KEYS.users, db.users)
+  save(STORAGE_KEYS.sessions, db.sessions)
 }
 
 /** Restores the known initial state of every mocked resource. */
 export function resetDb(): void {
-  db = createDb({})
+  db = createDb(false)
   try {
-    window.localStorage.removeItem(CARTS_STORAGE_KEY)
+    Object.values(STORAGE_KEYS).forEach((key) => window.localStorage.removeItem(key))
   } catch {
     // Nothing persisted to clear.
   }
+}
+
+/** Test control: every open session becomes expired, as if its time ran out. */
+export function expireSessions(): void {
+  const past = new Date(Date.now() - 1000).toISOString()
+  for (const session of Object.values(db.sessions)) session.expiresAt = past
+  persistAccounts()
 }
