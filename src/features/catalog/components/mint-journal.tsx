@@ -40,7 +40,7 @@ export function MintJournal() {
       <p className="mt-3 text-center text-sm leading-[1.3] text-fg-muted">
         Histórias, guias e insights para colecionadores sobre o universo da propriedade digital.
       </p>
-      <ul className="mt-10 grid grid-cols-2 gap-6 lg:grid-cols-[repeat(4,16.75rem)]">
+      <ul className="mt-10 grid grid-cols-2 gap-6 lg:grid-cols-4 xl:grid-cols-[repeat(4,16.75rem)]">
         {articles.map((article) => (
           <li key={article.title}>
             <article className="flex h-full flex-col overflow-hidden rounded-[8px] bg-surface">

@@ -31,7 +31,7 @@ const socialLinks = [
 
 function LinkColumn({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <nav aria-label={title} className="space-y-2 lg:flex-1">
+    <nav aria-label={title} className="space-y-2 xl:flex-1">
       <h2 className={footerHeadingClass}>{title}</h2>
       <ul>{children}</ul>
     </nav>
@@ -49,7 +49,7 @@ function UnavailableLinks({ links }: { links: string[] }) {
 }
 
 function Divider() {
-  return <span aria-hidden="true" className="hidden w-px self-stretch bg-primary lg:block" />
+  return <span aria-hidden="true" className="hidden w-px self-stretch bg-primary xl:block" />
 }
 
 export function Footer() {
@@ -61,20 +61,20 @@ export function Footer() {
 
   return (
     <footer className="page-container mt-24 mb-6 hidden md:block">
-      <div className="grid grid-cols-2 gap-8 bg-surface p-8 lg:flex lg:h-[15.625rem] lg:items-end lg:justify-between lg:gap-0">
-        <Benefit letter="W" title="Segurança da carteira" className="lg:flex-1">
+      <div className="grid grid-cols-2 gap-8 bg-surface p-8 xl:flex xl:h-[15.625rem] xl:items-end xl:justify-between xl:gap-0">
+        <Benefit letter="W" title="Segurança da carteira" className="xl:flex-1">
           Proteja sua carteira e colecione arte digital verificada com confiança.
         </Benefit>
         <Divider />
-        <Benefit letter="C" title="Criadores em destaque" className="lg:w-[16.5417rem]">
+        <Benefit letter="C" title="Criadores em destaque" className="xl:w-[16.5417rem]">
           Conheça artistas, estúdios e comunidades que moldam a cultura digital na rede.
         </Benefit>
         <Divider />
-        <Benefit letter="D" title="Alertas de lançamentos" className="lg:w-[16.5417rem]">
+        <Benefit letter="D" title="Alertas de lançamentos" className="xl:w-[16.5417rem]">
           Receba calendários de cunhagem, novidades de listas de acesso e análises do mercado.
         </Benefit>
         <Divider />
-        <section className="flex flex-col gap-3 px-4 lg:w-[22.3125rem] lg:self-stretch">
+        <section className="flex flex-col gap-3 px-4 xl:w-[22.3125rem] xl:self-stretch">
           <h2 className={footerHeadingClass}>Antecipe-se ao próximo lançamento</h2>
           <form
             onSubmit={handleNewsletterSubmit}
@@ -105,22 +105,22 @@ export function Footer() {
         </section>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 bg-surface-warm px-8 py-6 text-sm leading-[1.375rem] text-fg lg:flex lg:h-[5.5rem] lg:items-center lg:gap-[5.75rem] lg:py-0">
-        <span className="font-bold tracking-[0.1em] lg:flex-1">KURIO</span>
-        <span className="whitespace-nowrap lg:flex-1">
+      <div className="grid grid-cols-2 gap-4 bg-surface-warm px-8 py-6 text-sm leading-[1.375rem] text-fg xl:flex xl:h-[5.5rem] xl:items-center xl:gap-[5.75rem] xl:py-0">
+        <span className="font-bold tracking-[0.1em] xl:flex-1">KURIO</span>
+        <span className="whitespace-nowrap xl:flex-1">
           Feito para colecionadores,
           <br />
           criadores e cultura
         </span>
-        <a className="w-fit hover:text-fg-accent lg:flex-1" href="mailto:contato@email.com">
+        <a className="w-fit hover:text-fg-accent xl:flex-1" href="mailto:contato@email.com">
           contato@email.com
         </a>
-        <a className="w-fit hover:text-fg-accent lg:w-[14.25rem]" href="tel:+551140028922">
+        <a className="w-fit hover:text-fg-accent xl:w-[14.25rem]" href="tel:+551140028922">
           +55 11 4002 8922
         </a>
       </div>
 
-      <div className="grid grid-cols-2 gap-8 bg-surface p-8 lg:flex lg:h-[14.75rem] lg:gap-[7.75rem]">
+      <div className="grid grid-cols-2 gap-8 bg-surface p-8 xl:flex xl:h-[14.75rem] xl:gap-[7.75rem]">
         <LinkColumn title="Meu perfil">
           <li>
             <Link to="/perfil" className={footerLinkClass}>
@@ -140,7 +140,7 @@ export function Footer() {
         <LinkColumn title="Coleções">
           <UnavailableLinks links={collectionLinks} />
         </LinkColumn>
-        <section className="flex flex-col gap-8 lg:w-[14.25rem]">
+        <section className="flex flex-col gap-8 xl:w-[14.25rem]">
           <div className="flex flex-col gap-5">
             <h2 className={footerHeadingClass}>Redes sociais</h2>
             <ul className="flex gap-2">

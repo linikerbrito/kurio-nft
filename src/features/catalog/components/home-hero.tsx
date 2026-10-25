@@ -15,7 +15,7 @@ export function HomeHero() {
       aria-labelledby="hero-title"
       className="mt-8 hidden gap-6 md:flex md:flex-row md:items-center md:justify-between lg:h-[450px] lg:pl-10"
     >
-      <div className="flex min-w-0 flex-col md:flex-1 lg:w-[600px] lg:flex-none">
+      <div className="flex min-w-0 flex-col md:flex-1 xl:w-[600px] xl:flex-none">
         <div className="flex flex-col items-start gap-8">
           <div>
             <p className="text-sm leading-4 font-medium tracking-[0.1em] text-fg">
