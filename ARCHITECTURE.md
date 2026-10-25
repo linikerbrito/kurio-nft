@@ -105,7 +105,7 @@ Limitações do transporte simulado:
 - o `engine.io-client` captura `globalThis.WebSocket` ao carregar, então o `socket.io-client` é importado sob demanda, depois que o MSW está ativo (de quebra, fica fora do bundle inicial);
 - uma conexão recusada pelo servidor simulado fecha sem evento de erro; por isso o cliente usa `timeout: 3000` para tentar de novo em 3 s.
 
-Controles do lado do servidor, para demonstração e testes, ficam em `window.kurioMocks.realtime`: `updateNft`, `replayLast`, `emitStale`, `disconnect`, `connectionCount` e `deliveries` (eventos enviados e quem os recebeu). `window.kurioMocks.settleOrders()` assenta os pedidos pendentes na hora, para os testes controlarem o momento do `order.updated` em vez de esperar 3 s.
+Controles do lado do servidor, para demonstração e testes, ficam em `window.kurioMocks.realtime`: `updateNft`, `replayLast`, `emitStale`, `disconnect`, `connectionCount` e `deliveries` (eventos enviados e quem os recebeu). `window.kurioMocks.settleOrders()` assenta os pedidos pendentes na hora, para os testes controlarem o momento do `order.updated` em vez de esperar 3 s; `holdOrders(true)` mantém os pedidos pendentes (mesmo após recarregar) até essa chamada.
 
 ## Sessão
 

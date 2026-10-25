@@ -8,6 +8,7 @@ import {
   type MockCart,
   type MockConnection,
   type MockOrder,
+  ordersHeld,
 } from '@/mocks/db'
 import { toCart } from '@/mocks/pricing'
 import { emitNftUpdated, emitOrderUpdated, touchNft } from '@/mocks/realtime'
@@ -122,7 +123,8 @@ function applyPurchase(order: MockOrder): void {
 }
 
 /** Settles every pending order whose time has come; terminal states never change again. */
-export function settleDueOrders(now = Date.now()): void {
+export function settleDueOrders(now = Date.now(), force = false): void {
+  if (!force && ordersHeld()) return
   let changed = false
   for (const order of getDb().orders) {
     if (order.status !== 'pending' || Date.parse(order.settlesAt) > now) continue
@@ -184,5 +186,5 @@ export function settlePendingOrders(): void {
   for (const order of getDb().orders) {
     if (order.status === 'pending') order.settlesAt = new Date(now).toISOString()
   }
-  settleDueOrders(now)
+  settleDueOrders(now, true)
 }

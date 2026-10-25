@@ -1,5 +1,5 @@
 import { setupWorker } from 'msw/browser'
-import { expireSessions, resetDb } from '@/mocks/db'
+import { expireSessions, holdOrders, resetDb } from '@/mocks/db'
 import { settlePendingOrders } from '@/mocks/orders'
 import { handlers } from '@/mocks/handlers'
 import { realtimeControls } from '@/mocks/realtime'
@@ -15,6 +15,8 @@ interface MockControls {
   expireSessions: () => void
   /** Settles pending orders now instead of after their 3 s, emitting `order.updated`. */
   settleOrders: () => void
+  /** Keeps pending orders pending (across reloads) until `settleOrders` runs. */
+  holdOrders: (hold: boolean) => void
   /** Server side of the Socket.IO simulation: emits events, replays and drops connections. */
   realtime: typeof realtimeControls
 }
@@ -36,6 +38,7 @@ function installControls(): void {
     },
     expireSessions,
     settleOrders: settlePendingOrders,
+    holdOrders,
     realtime: realtimeControls,
   }
 }

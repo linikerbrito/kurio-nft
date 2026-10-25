@@ -104,6 +104,7 @@ Todos os controles ficam no objeto `kurioMocks` do console (só existe com mocks
 | Eventos duplicados ou antigos              | `kurioMocks.realtime.replayLast()` e `kurioMocks.realtime.emitStale('emerald-ape-042', '0.10')`.                                                                                                  |
 | Queda da conexão em tempo real             | `kurioMocks.realtime.disconnect(5000)` (derruba e recusa conexões por 5 s); com um pedido pendente, ele é reconciliado ao reconectar.                                                             |
 | Pedido pendente assentado na hora          | `kurioMocks.settleOrders()` confirma (ou recusa, no cenário `payment-rejected`) os pedidos pendentes sem esperar os 3 s, emitindo `order.updated`.                                                |
+| Pedido pendente mantido                    | `kurioMocks.holdOrders(true)` deixa os pedidos pendentes, mesmo após recarregar, até `settleOrders()` ser chamado; `holdOrders(false)` volta ao normal.                                           |
 | Para quem foi cada evento                  | `kurioMocks.realtime.deliveries()` lista os eventos enviados e os usuários que os receberam.                                                                                                      |
 
 ## Testes

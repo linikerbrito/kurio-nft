@@ -89,6 +89,7 @@ const STORAGE_KEYS = {
   favorites: 'kurio:mock-favorites',
   wallets: 'kurio:mock-wallets',
   orders: 'kurio:mock-orders',
+  holdOrders: 'kurio:mock-hold-orders',
 } as const
 
 function load<T>(key: string, fallback: T): T {
@@ -184,6 +185,15 @@ export function persistWallets(): void {
 export function persistOrders(): void {
   const { orders, connections, idempotency } = db
   save(STORAGE_KEYS.orders, { orders, connections, idempotency })
+}
+
+/** Test control: while held, pending orders settle only through `settlePendingOrders`. */
+export function holdOrders(hold: boolean): void {
+  save(STORAGE_KEYS.holdOrders, hold)
+}
+
+export function ordersHeld(): boolean {
+  return load(STORAGE_KEYS.holdOrders, false)
 }
 
 /** Restores the known initial state of every mocked resource. */
