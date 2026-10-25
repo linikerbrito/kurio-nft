@@ -26,6 +26,7 @@ import {
 } from '@/features/checkout/components/order-review-dialog'
 import { PurchaseLines } from '@/features/checkout/components/purchase-lines'
 import { linesFromCart } from '@/features/checkout/purchase-lines'
+import { quoteMatchesCart } from '@/features/checkout/quote-changes'
 import { selectSavedWallet } from '@/features/checkout/select-saved-wallet'
 import {
   AddressField,
@@ -128,6 +129,8 @@ const confirmButtonClass = {
 export function CheckoutPage() {
   const { data: session } = useSession()
   const cart = useCart()
+  // A purchase confirmed during the review empties the cart: the review stays on screen.
+  const [reviewOpen, setReviewOpen] = useState(false)
 
   useEffect(() => {
     document.title = 'Pagamento · Kurio'
@@ -147,7 +150,7 @@ export function CheckoutPage() {
         </Button>
       </CheckoutMessage>
     )
-  } else if (cart.data.items.length === 0) {
+  } else if (cart.data.items.length === 0 && !reviewOpen) {
     content = (
       <CheckoutMessage title="Seu carrinho está vazio.">
         <PendingAttemptNotice userId={session.user.id} />
@@ -157,13 +160,19 @@ export function CheckoutPage() {
       </CheckoutMessage>
     )
   } else {
-    content = <CheckoutForm user={session.user} cart={cart.data} />
+    content = <CheckoutForm user={session.user} cart={cart.data} onReviewChange={setReviewOpen} />
   }
 
   return <div className="pb-16">{content}</div>
 }
 
-function CheckoutForm({ user, cart }: { user: User; cart: Cart }) {
+interface CheckoutFormProps {
+  user: User
+  cart: Cart
+  onReviewChange: (open: boolean) => void
+}
+
+function CheckoutForm({ user, cart, onReviewChange }: CheckoutFormProps) {
   const isDesktop = useMediaQuery('(min-width: 768px)')
   const navigate = useNavigate()
   const search = useSearch({ from: '/_authenticated/pagamento' })
@@ -173,6 +182,8 @@ function CheckoutForm({ user, cart }: { user: User; cart: Cart }) {
   const disconnect = useDisconnectWallet()
   const placeOrder = usePlaceOrder(user.id)
   const [review, setReview] = useState<ReviewState | null>(null)
+  const reviewOpen = review !== null
+  useEffect(() => onReviewChange(reviewOpen), [reviewOpen, onReviewChange])
   const [failure, setFailure] = useState<{ message: string; retry: boolean } | null>(null)
   const [pageError, setPageError] = useState<string | null>(null)
   const [status, setStatus] = useState('')
@@ -223,6 +234,29 @@ function CheckoutForm({ user, cart }: { user: User; cart: Cart }) {
       form.setError('provider', { message: apiError.message })
     }
   }
+
+  // A price or stock change arrived (`nft.updated` refetched the cart): the open review is
+  // out of date, so it is quoted again and the user must confirm the new values.
+  const requote = createQuote.mutateAsync
+  // While an attempt waits to be retried (timeout), the order may already exist: retrying with
+  // the same key recovers it, so the review is left as it was.
+  const placing = placeOrder.isPending
+  const awaitingRetry = failure?.retry ?? false
+  useEffect(() => {
+    if (!review || placing || awaitingRetry || quoteMatchesCart(review.quote, cart)) return
+    let cancelled = false
+    requote()
+      .then((quote) => {
+        if (cancelled) return
+        setReview((current) => current && { ...current, quote, previousQuote: current.quote })
+      })
+      .catch((error: unknown) => {
+        if (!cancelled) setFailure({ message: toApiError(error).message, retry: false })
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [cart, review, placing, awaitingRetry, requote])
 
   function closeReview() {
     setReview(null)

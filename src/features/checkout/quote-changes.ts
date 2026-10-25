@@ -1,3 +1,4 @@
+import type { Cart } from '@/features/cart/types/cart'
 import type { Quote } from '@/features/checkout/types/checkout'
 import { formatEth } from '@/lib/eth'
 
@@ -24,4 +25,13 @@ export function quoteChanges(previous: Quote, current: Quote): string[] {
     )
   }
   return changes
+}
+
+/** False when the cart (refetched after an `nft.updated`) no longer matches the reviewed quote. */
+export function quoteMatchesCart(quote: Quote, cart: Cart): boolean {
+  const key = (items: Cart['items']) =>
+    items
+      .map((item) => `${item.id}:${item.quantity}:${item.unitPrice}:${item.issue ?? ''}`)
+      .join('|')
+  return key(quote.items) === key(cart.items) && quote.summary.total === cart.summary.total
 }

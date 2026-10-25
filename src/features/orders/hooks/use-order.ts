@@ -4,16 +4,13 @@ import { cartKeys } from '@/features/cart/hooks/use-cart'
 import { catalogKeys } from '@/features/catalog/hooks/use-catalog'
 import { fetchOrder, orderKeys } from '@/features/orders/api/orders-api'
 
-/** While pending, the order is checked every second until the network settles it. */
-const PENDING_REFRESH_MS = 1_000
-
 export function useOrder(orderId: string) {
   const queryClient = useQueryClient()
   const query = useQuery({
     queryKey: orderKeys.detail(orderId),
     queryFn: ({ signal }) => fetchOrder(orderId, signal),
-    refetchInterval: (current) =>
-      current.state.data?.status === 'pending' ? PENDING_REFRESH_MS : false,
+    // State changes arrive through `order.updated`; a reload or a reconnection refetches.
+    staleTime: Infinity,
   })
 
   // A confirmed purchase changed stock and the cart: both are fetched again, once.
