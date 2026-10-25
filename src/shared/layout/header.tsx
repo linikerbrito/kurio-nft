@@ -1,7 +1,7 @@
+import { lazy, Suspense } from 'react'
 import { Link, useRouterState } from '@tanstack/react-router'
 import cartIcon from '@/assets/figma/cart.svg'
 import logoutIcon from '@/assets/figma/logout.svg'
-import { UserMenu } from '@/features/auth/components/user-menu'
 import { useLoginRedirectSearch } from '@/features/auth/hooks/use-login-redirect-search'
 import { useSession } from '@/features/auth/hooks/use-session'
 import { SearchDialog } from '@/features/catalog/components/search-dialog'
@@ -9,6 +9,11 @@ import { useCartCount } from '@/features/cart/hooks/use-cart'
 import { isMarketPath } from '@/shared/layout/navigation-state'
 import { MaskIcon } from '@/shared/components/mask-icon'
 import { UnavailableAction } from '@/shared/components/unavailable-action'
+
+/** Only signed-in users get the account menu: its dropdown code stays out of the first load. */
+const UserMenu = lazy(() =>
+  import('@/features/auth/components/user-menu').then((module) => ({ default: module.UserMenu })),
+)
 
 const linkClass =
   'relative inline-flex h-full items-start px-5 text-base text-fg transition-colors hover:text-fg-accent'
@@ -79,7 +84,16 @@ export function Header() {
             )}
           </Link>
           {session ? (
-            <UserMenu user={session.user} />
+            <Suspense
+              fallback={
+                <span
+                  aria-hidden="true"
+                  className="ml-2.5 size-[2.1875rem] rounded-full bg-primary"
+                />
+              }
+            >
+              <UserMenu user={session.user} />
+            </Suspense>
           ) : (
             <Link
               to="/login"

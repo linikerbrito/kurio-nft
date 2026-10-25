@@ -8,6 +8,7 @@ import {
   reconcileAfterReconnect,
 } from '@/features/realtime/apply-events'
 import { nftUpdatedEventSchema, orderUpdatedEventSchema } from '@/features/realtime/types/realtime'
+import { whenNetworkReady } from '@/lib/network-ready'
 import { getSessionToken } from '@/lib/session-token'
 
 const SOCKET_URL = import.meta.env.VITE_SOCKET_URL ?? window.location.origin
@@ -42,36 +43,39 @@ export function useRealtimeSync(): void {
       return true
     }
 
-    // Loaded on demand: keeps Socket.IO out of the first bundle and lets the client pick up the
-    // WebSocket the mock layer installs at startup.
-    void import('socket.io-client').then(({ io }) => {
-      if (disposed) return
-      socket = io(SOCKET_URL, {
-        transports: ['websocket'],
-        // A handshake that never opens (server down) is retried after 3 s instead of 20 s.
-        timeout: 3_000,
-        reconnectionDelay: 500,
-        reconnectionDelayMax: 2_000,
-      })
+    // Loaded on demand, after the network is ready: keeps Socket.IO out of the first bundle and
+    // lets the client pick up the WebSocket the mock layer installs at startup.
+    void whenNetworkReady()
+      .then(() => import('socket.io-client'))
+      .then(({ io }) => {
+        if (disposed) return
+        socket = io(SOCKET_URL, {
+          transports: ['websocket'],
+          // A handshake that never opens (server down) is retried after 3 s instead of 20 s.
+          timeout: 3_000,
+          reconnectionDelay: 500,
+          reconnectionDelayMax: 2_000,
+        })
 
-      socket.on('connect', () => {
-        if (token) socket?.emit('session.join', token)
-        if (connectedBefore) reconcileAfterReconnect(queryClient)
-        connectedBefore = true
-      })
+        socket.on('connect', () => {
+          if (token) socket?.emit('session.join', token)
+          if (connectedBefore) reconcileAfterReconnect(queryClient)
+          connectedBefore = true
+        })
 
-      socket.on('nft.updated', (payload: unknown) => {
-        const event = nftUpdatedEventSchema.safeParse(payload)
-        if (event.success && firstDelivery(event.data.id)) applyNftUpdated(queryClient, event.data)
-      })
+        socket.on('nft.updated', (payload: unknown) => {
+          const event = nftUpdatedEventSchema.safeParse(payload)
+          if (event.success && firstDelivery(event.data.id))
+            applyNftUpdated(queryClient, event.data)
+        })
 
-      socket.on('order.updated', (payload: unknown) => {
-        const event = orderUpdatedEventSchema.safeParse(payload)
-        if (event.success && firstDelivery(event.data.id)) {
-          applyOrderUpdated(queryClient, event.data)
-        }
+        socket.on('order.updated', (payload: unknown) => {
+          const event = orderUpdatedEventSchema.safeParse(payload)
+          if (event.success && firstDelivery(event.data.id)) {
+            applyOrderUpdated(queryClient, event.data)
+          }
+        })
       })
-    })
 
     return () => {
       disposed = true

@@ -7,6 +7,7 @@ import {
   markSessionExpired,
   SESSION_EXPIRED_EVENT,
 } from '@/lib/session-token'
+import { whenNetworkReady } from '@/lib/network-ready'
 import { getVisitorCartId } from '@/lib/visitor-cart'
 
 export type ApiErrorCode =
@@ -55,7 +56,8 @@ export const http = axios.create({
 /** Header the API uses to find the visitor's cart. */
 export const CART_ID_HEADER = 'X-Cart-Id'
 
-http.interceptors.request.use((config) => {
+http.interceptors.request.use(async (config) => {
+  await whenNetworkReady()
   config.headers.set(CART_ID_HEADER, getVisitorCartId())
   const token = getSessionToken()
   if (token) config.headers.set('Authorization', `Bearer ${token}`)
